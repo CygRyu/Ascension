@@ -39,6 +39,18 @@
                     animation: {
                         'spin-slow': 'spin 3s linear infinite',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-in': 'slideIn 0.4s ease-out',
+                        'slide-out': 'slideOut 0.4s ease-in'
+                    },
+                    keyframes: {
+                        slideIn: {
+                            '0%': { transform: 'translateX(100%)', opacity: '0' },
+                            '100%': { transform: 'translateX(0)', opacity: '1' }
+                        },
+                        slideOut: {
+                            '0%': { transform: 'translateX(0)', opacity: '1' },
+                            '100%': { transform: 'translateX(100%)', opacity: '0' }
+                        }
                     }
                 }
             }
@@ -367,6 +379,67 @@
         
         .stone-divine {
             background: linear-gradient(135deg, #b71c1c, #f44336);
+        }
+
+        /* Notification styles */
+        .notification {
+            position: relative;
+            animation: animate-slide-in 0.4s ease-out;
+            max-width: 350px;
+        }
+
+        .notification.closing {
+            animation: animate-slide-out 0.4s ease-in forwards;
+        }
+
+        @keyframes animate-slide-in {
+            0% { transform: translateX(100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes animate-slide-out {
+            0% { transform: translateX(0); opacity: 1; }
+            100% { transform: translateX(100%); opacity: 0; }
+        }
+
+        .notification-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background-color: rgba(255,255,255,0.5);
+            width: 100%;
+            animation: notification-progress 5s linear forwards;
+        }
+
+        @keyframes notification-progress {
+            0% { width: 100%; }
+            100% { width: 0%; }
+        }
+
+        .notification-icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .notification-header {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .notification-type-breakthrough {
+            background: linear-gradient(135deg, #5D5CDE, #3333a3);
+            color: white;
+        }
+
+        .notification-type-idle {
+            background: linear-gradient(135deg, #b68434, #95682b);
+            color: white;
+        }
+
+        .notification-type-milestone {
+            background: linear-gradient(135deg, #d9b77a, #c99c52);
+            color: white;
         }
     </style>
 </head>
@@ -818,7 +891,10 @@
     </div>
 
     <!-- Toast Notifications -->
-    <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+    <div id="toast-container" class="fixed bottom-4 right-4 z-40"></div>
+
+    <!-- Custom Notifications Container -->
+    <div id="notification-container" class="fixed top-4 right-4 z-50 flex flex-col gap-3"></div>
 
     <!-- Tutorial Overlay -->
     <div id="tutorial-overlay" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center">
@@ -843,7 +919,12 @@
                 realm: 0,
                 stage: 1,
                 qi: 0,
-                lastUpdated: Date.now()
+                lastUpdated: Date.now(),
+                lastBreakthroughCheck: Date.now(),
+                reachedMilestones: {
+                    realms: [0],  // Tracks which realms have been reached for notification purposes
+                    stages: {}    // Tracks which stages have been reached for each realm
+                }
             },
             tasks: [],
             generatedTasks: [],
@@ -885,6 +966,14 @@
                 breakthroughs: 0,
                 failedAttempts: 0,
                 highestRealmReached: 0
+            },
+            notifications: {
+                settings: {
+                    breakthroughReadiness: true,
+                    idleRewards: true,
+                    cultivationMilestones: true
+                },
+                history: []  // To store past notifications if needed
             }
         };
 
@@ -1267,6 +1356,9 @@
             // Toast
             toastContainer: document.getElementById('toast-container'),
             
+            // Custom Notifications
+            notificationContainer: document.getElementById('notification-container'),
+            
             // Tutorial
             tutorialOverlay: document.getElementById('tutorial-overlay'),
             tutorialBody: document.getElementById('tutorial-body'),
@@ -1425,6 +1517,9 @@
             if (gameState.player.qi >= qiRequired) {
                 elements.attemptBreakthrough.disabled = false;
                 elements.attemptBreakthrough.textContent = "Attempt Breakthrough";
+                
+                // Check if we should show breakthrough readiness notification
+                checkBreakthroughReadiness();
             } else {
                 elements.attemptBreakthrough.disabled = true;
                 elements.attemptBreakthrough.textContent = `Attempt Breakthrough (Insufficient Qi)`;
@@ -1579,6 +1674,14 @@
                             taskTags.appendChild(tagBadge);
                         }
                     });
+                }
+
+                // Add completion count if it exists
+                if (task.completionCount && task.completionCount > 0) {
+                    const completionCount = document.createElement('div');
+                    completionCount.className = 'text-xs mt-1';
+                    completionCount.textContent = `Completed ${task.completionCount} ${task.completionCount === 1 ? 'time' : 'times'}`;
+                    taskContent.appendChild(completionCount);
                 }
                 
                 taskContent.appendChild(taskName);
@@ -1793,11 +1896,23 @@
             // Update stats
             gameState.stats.completedTasks++;
             
+            // Update task completion count in the original task
+            const originalTask = gameState.tasks.find(t => t.id === task.id);
+            if (originalTask) {
+                if (!originalTask.completionCount) {
+                    originalTask.completionCount = 0;
+                    originalTask.completionDates = [];
+                }
+                originalTask.completionCount++;
+                originalTask.completionDates.push(Date.now());
+            }
+            
             // Remove the task from generated list
             gameState.generatedTasks.splice(index, 1);
             
             // Update UI
             renderGeneratedTasks();
+            renderTaskList();
             updateCultivationUI();
             updateStonesUI();
             updateStatisticsUI();
@@ -1830,6 +1945,17 @@
                 totalQi += task.reward;
                 gameState.player.qi += task.reward;
                 gameState.stats.totalQiEarned += task.reward;
+                
+                // Update task completion count in the original task
+                const originalTask = gameState.tasks.find(t => t.id === task.id);
+                if (originalTask) {
+                    if (!originalTask.completionCount) {
+                        originalTask.completionCount = 0;
+                        originalTask.completionDates = [];
+                    }
+                    originalTask.completionCount++;
+                    originalTask.completionDates.push(Date.now());
+                }
                 
                 // Possibly award spirit stones based on realm
                 const stoneTypes = ['basic', 'low', 'medium', 'high', 'supreme', 'divine'];
@@ -1871,6 +1997,7 @@
             
             // Update UI
             renderGeneratedTasks();
+            renderTaskList();
             updateCultivationUI();
             updateStonesUI();
             updateStatisticsUI();
@@ -1955,6 +2082,9 @@
             
             if (success) {
                 // Successful breakthrough
+                const oldRealm = gameState.player.realm;
+                const oldStage = gameState.player.stage;
+                
                 gameState.player.stage++;
                 gameState.stats.breakthroughs++;
                 
@@ -1971,8 +2101,29 @@
                     
                     const newRealm = getCurrentRealm();
                     showToast(`Breakthrough success! Advanced to ${newRealm.name} (${newRealm.chineseName}) realm!`, "success");
+                    
+                    // Check if this is a new realm milestone for notifications
+                    if (!gameState.player.reachedMilestones.realms.includes(gameState.player.realm)) {
+                        showCultivationMilestoneNotification('realm', oldRealm, gameState.player.realm);
+                        gameState.player.reachedMilestones.realms.push(gameState.player.realm);
+                    }
+                    
                 } else {
                     showToast(`Breakthrough success! Advanced to stage ${gameState.player.stage}`, "success");
+                    
+                    // Check if this is a new stage milestone for notifications
+                    if (!gameState.player.reachedMilestones.stages[gameState.player.realm] || 
+                        !gameState.player.reachedMilestones.stages[gameState.player.realm].includes(gameState.player.stage)) {
+                        
+                        showCultivationMilestoneNotification('stage', oldStage, gameState.player.stage);
+                        
+                        // Initialize the array if it doesn't exist
+                        if (!gameState.player.reachedMilestones.stages[gameState.player.realm]) {
+                            gameState.player.reachedMilestones.stages[gameState.player.realm] = [];
+                        }
+                        
+                        gameState.player.reachedMilestones.stages[gameState.player.realm].push(gameState.player.stage);
+                    }
                 }
             } else {
                 // Failed breakthrough
@@ -1991,6 +2142,9 @@
             updateCultivationUI();
             updateStonesUI();
             updateStatisticsUI();
+            
+            // Reset breakthrough check timestamp
+            gameState.player.lastBreakthroughCheck = Date.now();
             
             // Save game state
             saveGameState();
@@ -2057,6 +2211,93 @@
                     }
                 }, 300);
             }, 3000);
+        }
+
+        // Show a custom notification
+        function showNotification(type, title, message) {
+            // Check if notifications for this type are enabled
+            if (!gameState.notifications.settings[type]) {
+                return;
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ancient-border rounded-lg p-4 notification-type-${type}`;
+            notification.setAttribute('data-type', type);
+            
+            // Create content
+            let iconClass = '';
+            switch (type) {
+                case 'breakthroughReadiness':
+                    iconClass = 'fas fa-level-up-alt';
+                    break;
+                case 'idleRewards':
+                    iconClass = 'fas fa-hourglass-half';
+                    break;
+                case 'cultivationMilestones':
+                    iconClass = 'fas fa-trophy';
+                    break;
+                default:
+                    iconClass = 'fas fa-bell';
+            }
+            
+            const content = `
+                <div class="flex items-start">
+                    <div class="notification-icon">
+                        <i class="${iconClass}"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <div class="notification-header">${title}</div>
+                        <div class="notification-message">${message}</div>
+                    </div>
+                    <button class="notification-close text-white opacity-75 hover:opacity-100">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="notification-progress"></div>
+            `;
+            
+            notification.innerHTML = content;
+            
+            // Add to container
+            elements.notificationContainer.appendChild(notification);
+            
+            // Set up auto-close timer
+            const autoCloseTimeout = setTimeout(() => {
+                closeNotification(notification);
+            }, 5000);
+            
+            // Set up manual close button
+            const closeButton = notification.querySelector('.notification-close');
+            closeButton.addEventListener('click', () => {
+                clearTimeout(autoCloseTimeout);
+                closeNotification(notification);
+            });
+            
+            // Store notification data if needed
+            gameState.notifications.history.push({
+                type,
+                title,
+                message,
+                timestamp: Date.now()
+            });
+            
+            // Keep history manageable
+            if (gameState.notifications.history.length > 20) {
+                gameState.notifications.history.shift();
+            }
+            
+            return notification;
+        }
+
+        // Close a notification with animation
+        function closeNotification(notification) {
+            notification.classList.add('closing');
+            setTimeout(() => {
+                if (elements.notificationContainer.contains(notification)) {
+                    elements.notificationContainer.removeChild(notification);
+                }
+            }, 400);
         }
 
         // Show a modal
@@ -2192,6 +2433,60 @@
             }
         }
 
+        // Check for breakthrough readiness
+        function checkBreakthroughReadiness() {
+            const now = Date.now();
+            // Only check if we haven't checked in the last 10 minutes
+            if (now - gameState.player.lastBreakthroughCheck < 10 * 60 * 1000) {
+                return;
+            }
+            
+            const qiRequired = getQiRequiredForBreakthrough();
+            if (gameState.player.qi >= qiRequired) {
+                const currentRealm = getCurrentRealm();
+                const title = "Breakthrough Ready";
+                let message = `You have accumulated enough qi to attempt a breakthrough to stage ${gameState.player.stage + 1}`;
+                
+                // Check if this would advance to next realm
+                if (gameState.player.stage >= currentRealm.stages) {
+                    const nextRealm = getNextRealm();
+                    if (nextRealm) {
+                        message = `You have accumulated enough qi to advance to the ${nextRealm.name} realm!`;
+                    }
+                }
+                
+                showNotification('breakthroughReadiness', title, message);
+                gameState.player.lastBreakthroughCheck = now;
+            }
+        }
+
+        // Show idle rewards notification
+        function showIdleRewardsNotification(qiGained) {
+            const title = "Idle Cultivation Results";
+            let message = `You gained ${formatNumber(qiGained)} qi while away.`;
+            
+            showNotification('idleRewards', title, message);
+        }
+
+        // Show cultivation milestone notification
+        function showCultivationMilestoneNotification(type, oldValue, newValue) {
+            let title = "Cultivation Milestone";
+            let message = "";
+            
+            if (type === 'realm') {
+                const oldRealm = cultivationRealms[oldValue];
+                const newRealm = cultivationRealms[newValue];
+                title = "Realm Advancement";
+                message = `You have broken through to the ${newRealm.name} (${newRealm.chineseName}) realm!`;
+            } else if (type === 'stage') {
+                const currentRealm = getCurrentRealm();
+                title = "Stage Advancement";
+                message = `You have advanced to stage ${newValue} of the ${currentRealm.name} realm!`;
+            }
+            
+            showNotification('cultivationMilestones', title, message);
+        }
+
         // Save and load game state
         function saveGameState() {
             try {
@@ -2206,6 +2501,36 @@
                 const savedState = localStorage.getItem('cultivationTaskManager');
                 if (savedState) {
                     const parsedState = JSON.parse(savedState);
+                    
+                    // Ensure reachedMilestones exists
+                    if (!parsedState.player.reachedMilestones) {
+                        parsedState.player.reachedMilestones = {
+                            realms: [parsedState.player.realm],
+                            stages: {}
+                        };
+                    }
+                    
+                    // Ensure notification settings exist
+                    if (!parsedState.notifications) {
+                        parsedState.notifications = {
+                            settings: {
+                                breakthroughReadiness: true,
+                                idleRewards: true,
+                                cultivationMilestones: true
+                            },
+                            history: []
+                        };
+                    }
+                    
+                    // Add completion count to tasks if not present
+                    if (parsedState.tasks) {
+                        parsedState.tasks.forEach(task => {
+                            if (!task.completionCount) {
+                                task.completionCount = 0;
+                                task.completionDates = [];
+                            }
+                        });
+                    }
                     
                     // Merge the saved state with the default state
                     // This ensures new properties added in updates are included
@@ -2222,7 +2547,7 @@
                     const now = Date.now();
                     const elapsedMinutes = (now - gameState.player.lastUpdated) / (1000 * 60);
                     
-                    if (elapsedMinutes > 0) {
+                    if (elapsedMinutes > 1) { // Only show for at least 1 minute away
                         const currentRealm = getCurrentRealm();
                         const idleGain = Math.floor(elapsedMinutes * 0.5 * currentRealm.multiplier);
                         
@@ -2230,7 +2555,13 @@
                             gameState.player.qi += idleGain;
                             gameState.player.lastUpdated = now;
                             
-                            showToast(`Welcome back! You gained ${formatNumber(idleGain)} qi while away.`, "info");
+                            // Show idle rewards notification if it's significant
+                            if (idleGain > currentRealm.baseQiRequirement * 0.01) { // 1% of breakthrough requirement
+                                showIdleRewardsNotification(idleGain);
+                            } else {
+                                showToast(`Welcome back! You gained ${formatNumber(idleGain)} qi while away.`, "info");
+                            }
+                            
                             updateCultivationUI();
                             saveGameState();
                         }
@@ -2278,6 +2609,36 @@
                     "Import Game Data",
                     "Are you sure you want to import this game data? Your current progress will be overwritten.",
                     () => {
+                        // Ensure reachedMilestones exists
+                        if (!parsedState.player.reachedMilestones) {
+                            parsedState.player.reachedMilestones = {
+                                realms: [parsedState.player.realm],
+                                stages: {}
+                            };
+                        }
+                        
+                        // Ensure notification settings exist
+                        if (!parsedState.notifications) {
+                            parsedState.notifications = {
+                                settings: {
+                                    breakthroughReadiness: true,
+                                    idleRewards: true,
+                                    cultivationMilestones: true
+                                },
+                                history: []
+                            };
+                        }
+                        
+                        // Add completion count to tasks if not present
+                        if (parsedState.tasks) {
+                            parsedState.tasks.forEach(task => {
+                                if (!task.completionCount) {
+                                    task.completionCount = 0;
+                                    task.completionDates = [];
+                                }
+                            });
+                        }
+                        
                         // Merge the imported state with the current state
                         Object.assign(gameState, parsedState);
                         
@@ -2330,7 +2691,14 @@
                         highestRealmReached: gameState.player.realm
                     };
                     
+                    // Also reset task completion counts
+                    gameState.tasks.forEach(task => {
+                        task.completionCount = 0;
+                        task.completionDates = [];
+                    });
+                    
                     updateStatisticsUI();
+                    renderTaskList();
                     saveGameState();
                     
                     showToast("Statistics reset successfully", "success");
@@ -2351,7 +2719,12 @@
                             realm: 0,
                             stage: 1,
                             qi: 0,
-                            lastUpdated: Date.now()
+                            lastUpdated: Date.now(),
+                            lastBreakthroughCheck: Date.now(),
+                            reachedMilestones: {
+                                realms: [0],
+                                stages: {}
+                            }
                         },
                         tasks: [],
                         generatedTasks: [],
@@ -2393,6 +2766,14 @@
                             breakthroughs: 0,
                             failedAttempts: 0,
                             highestRealmReached: 0
+                        },
+                        notifications: {
+                            settings: {
+                                breakthroughReadiness: true,
+                                idleRewards: true,
+                                cultivationMilestones: true
+                            },
+                            history: []
                         }
                     });
                     
@@ -2459,7 +2840,9 @@
                 const newTask = {
                     id: Date.now().toString(),
                     name,
-                    tags
+                    tags,
+                    completionCount: 0,
+                    completionDates: []
                 };
                 
                 gameState.tasks.push(newTask);
@@ -2572,6 +2955,11 @@
                     saveGameState();
                 }
             }, 60000); // Update every minute
+            
+            // Check for breakthrough readiness periodically
+            setInterval(() => {
+                checkBreakthroughReadiness();
+            }, 5 * 60 * 1000); // Check every 5 minutes
             
             // Setup dark mode detection
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
