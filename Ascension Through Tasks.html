@@ -1,0 +1,2607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>青云修仙录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f5ff',
+                            100: '#e1ebff',
+                            200: '#c3d8ff',
+                            300: '#a4c1ff',
+                            400: '#819fff',
+                            500: '#5D5CDE',
+                            600: '#4242c9',
+                            700: '#3333a3',
+                            800: '#292985',
+                            900: '#25256d',
+                        },
+                        ancient: {
+                            50: '#fdf8f1',
+                            100: '#f2e3ce',
+                            200: '#e6d0ad',
+                            300: '#d9b77a',
+                            400: '#c99c52',
+                            500: '#b68434',
+                            600: '#95682b',
+                            700: '#744f25',
+                            800: '#5a3e23',
+                            900: '#46321f',
+                        }
+                    },
+                    animation: {
+                        'spin-slow': 'spin 3s linear infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #5D5CDE;
+            --scroll-color: #d9b77a;
+            --paper-color: #f2e3ce;
+            --ink-color: #46321f;
+            --qi-color: #5D5CDE;
+            --qi-glow: rgba(93, 92, 222, 0.3);
+            --ancient-dark: #46321f;
+            --ancient-light: #f2e3ce;
+            --ancient-medium: #d9b77a;
+            --ancient-accent: #b68434;
+        }
+
+        .dark {
+            --paper-color: #25256d;
+            --ink-color: #f2e3ce;
+            --ancient-dark: #f2e3ce;
+            --ancient-light: #25256d;
+            --ancient-medium: #3333a3;
+            --ancient-accent: #819fff;
+        }
+
+        body {
+            font-family: 'Cinzel', 'Noto Serif SC', serif;
+            background-color: var(--paper-color);
+            color: var(--ink-color);
+            min-height: 100vh;
+        }
+
+        .ancient-border {
+            border: 2px solid var(--ancient-accent);
+            box-shadow: 0 0 10px rgba(182, 132, 52, 0.3);
+            background-color: var(--ancient-light);
+        }
+
+        .dark .ancient-border {
+            box-shadow: 0 0 10px rgba(129, 159, 255, 0.3);
+        }
+
+        .ancient-scroll {
+            background-color: var(--ancient-light);
+            border: 2px solid var(--ancient-accent);
+            border-radius: 5px;
+            padding: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ancient-scroll::before, .ancient-scroll::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 20px;
+            top: 0;
+            background-color: var(--ancient-medium);
+            border: 2px solid var(--ancient-accent);
+        }
+
+        .ancient-scroll::before {
+            left: -10px;
+            border-radius: 10px 0 0 10px;
+        }
+
+        .ancient-scroll::after {
+            right: -10px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .cultivation-banner {
+            background: linear-gradient(to right, var(--ancient-medium), var(--ancient-light), var(--ancient-medium));
+            border-top: 2px solid var(--ancient-accent);
+            border-bottom: 2px solid var(--ancient-accent);
+            padding: 0.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .cultivation-banner::before, .cultivation-banner::after {
+            content: '☯';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--ancient-accent);
+        }
+
+        .cultivation-banner::before {
+            left: 10px;
+        }
+
+        .cultivation-banner::after {
+            right: 10px;
+        }
+
+        .qi-progress {
+            background: linear-gradient(to right, var(--qi-color), var(--qi-glow));
+            transition: width 0.5s ease-in-out;
+        }
+
+        .scroll-container {
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--scroll-color) var(--ancient-light);
+        }
+
+        .scroll-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scroll-container::-webkit-scrollbar-track {
+            background: var(--ancient-light);
+        }
+
+        .scroll-container::-webkit-scrollbar-thumb {
+            background-color: var(--scroll-color);
+            border-radius: 4px;
+        }
+
+        .tab-button {
+            position: relative;
+            padding: 0.5rem 1rem;
+            margin: 0 0.25rem;
+            color: var(--ink-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-button:hover {
+            border-bottom: 2px solid var(--ancient-accent);
+        }
+
+        .tab-button.active {
+            border-bottom: 2px solid var(--ancient-accent);
+            font-weight: bold;
+        }
+
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--ancient-accent);
+            transition: width 0.3s ease;
+        }
+
+        .tab-button:hover::after {
+            width: 100%;
+        }
+
+        .glow-on-hover:hover {
+            box-shadow: 0 0 10px var(--qi-glow);
+        }
+
+        .custom-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--ancient-accent);
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            background-color: var(--ancient-light);
+        }
+
+        .custom-checkbox:checked {
+            background-color: var(--ancient-accent);
+        }
+
+        .custom-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--ancient-light);
+            font-size: 14px;
+        }
+
+        .ancient-input {
+            background-color: var(--ancient-light);
+            border: 2px solid var(--ancient-accent);
+            color: var(--ink-color);
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .ancient-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--qi-glow);
+        }
+
+        .ancient-button {
+            background-color: var(--ancient-accent);
+            color: var(--ancient-light);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .ancient-button:hover {
+            background-color: var(--ancient-dark);
+            transform: translateY(-2px);
+        }
+
+        .ancient-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--ancient-dark);
+            color: var(--ancient-light);
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .rotate-symbol {
+            display: inline-block;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            background-color: var(--ancient-accent);
+            color: var(--ancient-light);
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .spirit-stone {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .spirit-stone:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .stone-basic {
+            background: linear-gradient(135deg, #a1a1a1, #d4d4d4);
+        }
+        
+        .stone-low {
+            background: linear-gradient(135deg, #3a8538, #5cc15a);
+        }
+        
+        .stone-medium {
+            background: linear-gradient(135deg, #3246b5, #5c7aff);
+        }
+        
+        .stone-high {
+            background: linear-gradient(135deg, #9c27b0, #d05ce3);
+        }
+        
+        .stone-supreme {
+            background: linear-gradient(135deg, #f57c00, #ffb74d);
+        }
+        
+        .stone-divine {
+            background: linear-gradient(135deg, #b71c1c, #f44336);
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container mx-auto px-4 py-8 max-w-5xl">
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-bold mb-2">青云修仙录</h1>
+            <p class="text-xl">Ascension Through Tasks</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="mb-6 flex flex-wrap justify-center border-b border-ancient-accent">
+            <button class="tab-button active" data-tab="cultivation">Cultivation</button>
+            <button class="tab-button" data-tab="tasks">Tasks</button>
+            <button class="tab-button" data-tab="inventory">Inventory</button>
+            <button class="tab-button" data-tab="statistics">Statistics</button>
+            <button class="tab-button" data-tab="settings">Settings</button>
+        </div>
+
+        <!-- Tab Contents -->
+        <div id="tab-content">
+            <!-- Cultivation Tab -->
+            <div id="cultivation-tab" class="tab-content active">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Cultivation Status -->
+                    <div class="ancient-border rounded-lg p-4">
+                        <h2 class="text-2xl font-bold mb-4 cultivation-banner">Cultivation Status</h2>
+                        <div class="mb-4">
+                            <div class="flex justify-between mb-1">
+                                <span>Current Realm: <span id="current-realm" class="font-bold">Mortal</span></span>
+                                <span>Stage: <span id="current-stage" class="font-bold">1</span>/<span id="max-stage" class="font-bold">9</span></span>
+                            </div>
+                            <div class="relative pt-1">
+                                <div class="overflow-hidden h-4 text-xs flex rounded bg-ancient-light bg-opacity-50 border border-ancient-accent">
+                                    <div id="qi-progress-bar" class="qi-progress shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center" style="width: 0%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs mt-1">
+                                    <span id="current-qi">0</span>
+                                    <span id="target-qi">100</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="cultivation-banner mb-2">Idle Cultivation</div>
+                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                <div>Base Rate:</div>
+                                <div id="base-rate">0.5 qi/min</div>
+                                
+                                <div>Current Multiplier:</div>
+                                <div id="current-multiplier">×1.0</div>
+                                
+                                <div>Effective Rate:</div>
+                                <div id="effective-rate">0.5 qi/min</div>
+                            </div>
+                            <div class="border border-ancient-accent p-2 rounded">
+                                <div class="text-center mb-1">Next hour will yield approximately:</div>
+                                <div id="next-hour-yield" class="text-center font-bold">30 qi</div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <div class="cultivation-banner mb-2">Realm Description</div>
+                            <div id="realm-description" class="italic text-center">
+                                An ordinary person with no spiritual awareness. The journey of a thousand miles begins with a single step.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Breakthrough Section -->
+                    <div class="ancient-border rounded-lg p-4">
+                        <h2 class="text-2xl font-bold mb-4 cultivation-banner">Breakthrough</h2>
+                        <div class="mb-4">
+                            <div class="flex justify-between mb-1">
+                                <span>Qi Required:</span>
+                                <span id="breakthrough-qi-required">100</span>
+                            </div>
+                            <div class="flex justify-between mb-1">
+                                <span>Base Success Rate:</span>
+                                <span id="base-success-rate">75%</span>
+                            </div>
+                            <div class="flex justify-between mb-4">
+                                <span>Final Success Rate:</span>
+                                <span id="final-success-rate">75%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="cultivation-banner mb-2">Use Spirit Stones to Boost Success Rate</div>
+                            <div class="flex flex-wrap justify-center gap-2 mb-4">
+                                <div class="spirit-stone stone-basic tooltip" data-type="basic" data-count="0">
+                                    <span class="tooltiptext">Basic Spirit Stone: +1% success rate</span>
+                                    <span class="stone-count">0</span>
+                                </div>
+                                <div class="spirit-stone stone-low tooltip" data-type="low" data-count="0">
+                                    <span class="tooltiptext">Low-Grade Spirit Stone: +5% success rate</span>
+                                    <span class="stone-count">0</span>
+                                </div>
+                                <div class="spirit-stone stone-medium tooltip" data-type="medium" data-count="0">
+                                    <span class="tooltiptext">Medium-Grade Spirit Stone: +10% success rate</span>
+                                    <span class="stone-count">0</span>
+                                </div>
+                                <div class="spirit-stone stone-high tooltip" data-type="high" data-count="0">
+                                    <span class="tooltiptext">High-Grade Spirit Stone: +15% success rate</span>
+                                    <span class="stone-count">0</span>
+                                </div>
+                                <div class="spirit-stone stone-supreme tooltip" data-type="supreme" data-count="0">
+                                    <span class="tooltiptext">Supreme-Grade Spirit Stone: +20% success rate</span>
+                                    <span class="stone-count">0</span>
+                                </div>
+                                <div class="spirit-stone stone-divine tooltip" data-type="divine" data-count="0">
+                                    <span class="tooltiptext">Divine-Grade Spirit Stone: +25% success rate</span>
+                                    <span class="stone-count">0</span>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-2 mb-4">
+                                <div>Selected Stones:</div>
+                                <div id="selected-stones">None</div>
+                                
+                                <div>Success Boost:</div>
+                                <div id="success-boost">+0%</div>
+                            </div>
+                            
+                            <button id="clear-stones" class="ancient-button w-full mb-4">Clear Selected Stones</button>
+                            
+                            <button id="attempt-breakthrough" class="ancient-button w-full" disabled>
+                                Attempt Breakthrough (Insufficient Qi)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Tab -->
+            <div id="tasks-tab" class="tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Task Management -->
+                    <div class="ancient-border rounded-lg p-4">
+                        <h2 class="text-2xl font-bold mb-4 cultivation-banner">Task Management</h2>
+                        
+                        <div class="mb-4">
+                            <label class="block mb-1">Task Name:</label>
+                            <input type="text" id="task-name" class="ancient-input w-full mb-2" placeholder="Enter task name">
+                            
+                            <label class="block mb-1">Tags (comma separated):</label>
+                            <input type="text" id="task-tags" class="ancient-input w-full mb-2" placeholder="work, study, exercise, etc.">
+                            
+                            <button id="add-task" class="ancient-button w-full">Add Task</button>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-xl font-bold">Task List</h3>
+                                <div class="flex gap-2">
+                                    <select id="sort-tasks" class="ancient-input text-sm">
+                                        <option value="name-asc">Sort by Name (A-Z)</option>
+                                        <option value="name-desc">Sort by Name (Z-A)</option>
+                                        <option value="tag-asc">Sort by Tag (A-Z)</option>
+                                        <option value="tag-desc">Sort by Tag (Z-A)</option>
+                                    </select>
+                                    <button id="select-all-tasks" class="ancient-button text-sm px-2">Select All</button>
+                                </div>
+                            </div>
+                            
+                            <div id="task-list" class="scroll-container ancient-scroll p-4">
+                                <p class="text-center italic">No tasks added yet</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="edit-selected-task" class="ancient-button" disabled>Edit Selected</button>
+                            <button id="delete-selected-tasks" class="ancient-button" disabled>Delete Selected</button>
+                        </div>
+                    </div>
+
+                    <!-- Task Generator -->
+                    <div class="ancient-border rounded-lg p-4">
+                        <h2 class="text-2xl font-bold mb-4 cultivation-banner">Task Generator</h2>
+                        
+                        <div class="mb-4">
+                            <label class="block mb-1">Number of tasks to generate:</label>
+                            <input type="number" id="task-count" class="ancient-input w-full" min="1" max="10" value="1">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block mb-1">Filter by tags (optional):</label>
+                            <input type="text" id="filter-tags" class="ancient-input w-full" placeholder="Leave empty to include all tags">
+                        </div>
+                        
+                        <button id="generate-tasks" class="ancient-button w-full mb-4">Generate Tasks</button>
+                        
+                        <div class="mb-4">
+                            <h3 class="text-xl font-bold mb-2">Generated Tasks</h3>
+                            <div id="generated-tasks" class="scroll-container ancient-scroll p-4 min-h-[200px]">
+                                <p class="text-center italic">No tasks generated yet</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="complete-all-tasks" class="ancient-button" disabled>Complete All</button>
+                            <button id="give-up-tasks" class="ancient-button" disabled>Give Up (Qi Penalty)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Tab -->
+            <div id="inventory-tab" class="tab-content hidden">
+                <div class="ancient-border rounded-lg p-4">
+                    <h2 class="text-2xl font-bold mb-4 cultivation-banner">Spirit Stone Inventory</h2>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div class="ancient-scroll p-4 text-center">
+                            <div class="spirit-stone stone-basic mx-auto mb-2"></div>
+                            <h3 class="font-bold">Basic Spirit Stone</h3>
+                            <p>Count: <span id="basic-stone-count">0</span></p>
+                            <button class="ancient-button mt-2 text-sm" data-stone="basic" disabled>Fuse 100 → Low-Grade</button>
+                        </div>
+                        
+                        <div class="ancient-scroll p-4 text-center">
+                            <div class="spirit-stone stone-low mx-auto mb-2"></div>
+                            <h3 class="font-bold">Low-Grade Spirit Stone</h3>
+                            <p>Count: <span id="low-stone-count">0</span></p>
+                            <button class="ancient-button mt-2 text-sm" data-stone="low" disabled>Fuse 100 → Medium-Grade</button>
+                        </div>
+                        
+                        <div class="ancient-scroll p-4 text-center">
+                            <div class="spirit-stone stone-medium mx-auto mb-2"></div>
+                            <h3 class="font-bold">Medium-Grade Spirit Stone</h3>
+                            <p>Count: <span id="medium-stone-count">0</span></p>
+                            <button class="ancient-button mt-2 text-sm" data-stone="medium" disabled>Fuse 100 → High-Grade</button>
+                        </div>
+                        
+                        <div class="ancient-scroll p-4 text-center">
+                            <div class="spirit-stone stone-high mx-auto mb-2"></div>
+                            <h3 class="font-bold">High-Grade Spirit Stone</h3>
+                            <p>Count: <span id="high-stone-count">0</span></p>
+                            <button class="ancient-button mt-2 text-sm" data-stone="high" disabled>Fuse 100 → Supreme-Grade</button>
+                        </div>
+                        
+                        <div class="ancient-scroll p-4 text-center">
+                            <div class="spirit-stone stone-supreme mx-auto mb-2"></div>
+                            <h3 class="font-bold">Supreme-Grade Spirit Stone</h3>
+                            <p>Count: <span id="supreme-stone-count">0</span></p>
+                            <button class="ancient-button mt-2 text-sm" data-stone="supreme" disabled>Fuse 100 → Divine-Grade</button>
+                        </div>
+                        
+                        <div class="ancient-scroll p-4 text-center">
+                            <div class="spirit-stone stone-divine mx-auto mb-2"></div>
+                            <h3 class="font-bold">Divine-Grade Spirit Stone</h3>
+                            <p>Count: <span id="divine-stone-count">0</span></p>
+                            <p class="text-sm mt-2 italic">Highest tier available</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-xl font-bold mb-2 cultivation-banner">Spirit Stone Effects</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="ancient-scroll p-4">
+                                <h4 class="font-bold mb-2">Base Effects</h4>
+                                <ul class="list-disc pl-4">
+                                    <li>Basic Spirit Stone: +1% breakthrough success</li>
+                                    <li>Low-Grade Spirit Stone: +5% breakthrough success</li>
+                                    <li>Medium-Grade Spirit Stone: +10% breakthrough success</li>
+                                    <li>High-Grade Spirit Stone: +15% breakthrough success</li>
+                                    <li>Supreme-Grade Spirit Stone: +20% breakthrough success</li>
+                                    <li>Divine-Grade Spirit Stone: +25% breakthrough success</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="ancient-scroll p-4">
+                                <h4 class="font-bold mb-2">Realm Effectiveness</h4>
+                                <p class="mb-2">Lower spirit stones have reduced effectiveness in higher realms:</p>
+                                <ul class="list-disc pl-4">
+                                    <li>3 realms above: 25% effectiveness</li>
+                                    <li>2 realms above: 50% effectiveness</li>
+                                    <li>1 realm above: 75% effectiveness</li>
+                                    <li>Same realm or below: 100% effectiveness</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Tab -->
+            <div id="statistics-tab" class="tab-content hidden">
+                <div class="ancient-border rounded-lg p-4">
+                    <h2 class="text-2xl font-bold mb-4 cultivation-banner">Cultivation Statistics</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="ancient-scroll p-4">
+                            <h3 class="font-bold mb-2">Task Statistics</h3>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>Total Existing Tasks:</div>
+                                <div id="stat-total-tasks">0</div>
+                                
+                                <div>Total Completed Tasks:</div>
+                                <div id="stat-completed-tasks">0</div>
+                                
+                                <div>Average Qi/Task:</div>
+                                <div id="stat-avg-qi">0</div>
+                                
+                                <div>Average Stones/Task:</div>
+                                <div id="stat-avg-stones">0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ancient-scroll p-4">
+                            <h3 class="font-bold mb-2">Breakthrough Statistics</h3>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>Total Breakthroughs:</div>
+                                <div id="stat-breakthroughs">0</div>
+                                
+                                <div>Failed Attempts:</div>
+                                <div id="stat-failed-attempts">0</div>
+                                
+                                <div>Success Rate:</div>
+                                <div id="stat-success-rate">0%</div>
+                                
+                                <div>Highest Realm Reached:</div>
+                                <div id="stat-highest-realm">Mortal</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h3 class="text-xl font-bold mb-2 cultivation-banner">Spirit Stone Statistics</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div class="text-center">
+                                <p>Basic Spirit Stones Found:</p>
+                                <p id="stat-basic-stones" class="font-bold">0</p>
+                            </div>
+                            <div class="text-center">
+                                <p>Low-Grade Spirit Stones Found:</p>
+                                <p id="stat-low-stones" class="font-bold">0</p>
+                            </div>
+                            <div class="text-center">
+                                <p>Medium-Grade Spirit Stones Found:</p>
+                                <p id="stat-medium-stones" class="font-bold">0</p>
+                            </div>
+                            <div class="text-center">
+                                <p>High-Grade Spirit Stones Found:</p>
+                                <p id="stat-high-stones" class="font-bold">0</p>
+                            </div>
+                            <div class="text-center">
+                                <p>Supreme-Grade Spirit Stones Found:</p>
+                                <p id="stat-supreme-stones" class="font-bold">0</p>
+                            </div>
+                            <div class="text-center">
+                                <p>Divine-Grade Spirit Stones Found:</p>
+                                <p id="stat-divine-stones" class="font-bold">0</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h4 class="font-bold mb-2">Spirit Stones Fused:</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div class="text-center">
+                                    <p>Basic → Low-Grade:</p>
+                                    <p id="stat-basic-fused" class="font-bold">0</p>
+                                </div>
+                                <div class="text-center">
+                                    <p>Low → Medium-Grade:</p>
+                                    <p id="stat-low-fused" class="font-bold">0</p>
+                                </div>
+                                <div class="text-center">
+                                    <p>Medium → High-Grade:</p>
+                                    <p id="stat-medium-fused" class="font-bold">0</p>
+                                </div>
+                                <div class="text-center">
+                                    <p>High → Supreme-Grade:</p>
+                                    <p id="stat-high-fused" class="font-bold">0</p>
+                                </div>
+                                <div class="text-center">
+                                    <p>Supreme → Divine-Grade:</p>
+                                    <p id="stat-supreme-fused" class="font-bold">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content hidden">
+                <div class="ancient-border rounded-lg p-4">
+                    <h2 class="text-2xl font-bold mb-4 cultivation-banner">Settings</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="ancient-scroll p-4">
+                            <h3 class="font-bold mb-4">Game Data</h3>
+                            
+                            <button id="export-game" class="ancient-button w-full mb-2">Export Game Data</button>
+                            
+                            <div class="mb-4">
+                                <label class="block mb-1">Import Game Data:</label>
+                                <textarea id="import-data" class="ancient-input w-full h-20" placeholder="Paste exported game data here"></textarea>
+                                <button id="import-game" class="ancient-button w-full mt-2">Import Game Data</button>
+                            </div>
+                            
+                            <div class="border-t border-ancient-accent pt-4">
+                                <h4 class="font-bold mb-2">Reset Options</h4>
+                                <button id="reset-stats" class="ancient-button w-full mb-2">Reset Statistics Only</button>
+                                <button id="hard-reset" class="ancient-button w-full">Hard Reset (Delete ALL Data)</button>
+                            </div>
+                        </div>
+                        
+                        <div class="ancient-scroll p-4">
+                            <h3 class="font-bold mb-4">Help</h3>
+                            <button id="show-tutorial" class="ancient-button w-full mb-4">Show Tutorial</button>
+                            
+                            <h3 class="font-bold mb-2">About</h3>
+                            <p class="mb-4">青云修仙录 (Qing Yun Xiu Xian Lu) is a task management and cultivation simulation game that helps you overcome procrastination while progressing through various cultivation realms.</p>
+                            
+                            <h4 class="font-bold mb-1">Features:</h4>
+                            <ul class="list-disc pl-4 mb-4">
+                                <li>Task management with tags</li>
+                                <li>Random task generation</li>
+                                <li>Cultivation progression system</li>
+                                <li>Spirit stone collection and fusion</li>
+                                <li>Breakthrough mechanics</li>
+                                <li>Idle cultivation progression</li>
+                            </ul>
+                            
+                            <div class="text-center mt-6">
+                                <p class="mb-2">Developed by CygRyu</p>
+                                <div class="flex justify-center space-x-4">
+                                    <a href="https://ko-fi.com/cygryu" target="_blank" class="ancient-button">Ko-Fi</a>
+                                    <a href="https://www.paypal.com/paypalme/sofiansu?country.x=ID&locale.x=en_US" target="_blank" class="ancient-button">PayPal</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+        <div id="modal-content" class="ancient-border rounded-lg p-6 max-w-md w-full mx-4">
+            <div id="modal-header" class="text-xl font-bold mb-4 cultivation-banner">Modal Title</div>
+            <div id="modal-body" class="mb-4">Modal content goes here</div>
+            <div id="modal-footer" class="flex justify-end space-x-2">
+                <button id="modal-cancel" class="ancient-button">Cancel</button>
+                <button id="modal-confirm" class="ancient-button">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50"></div>
+
+    <!-- Tutorial Overlay -->
+    <div id="tutorial-overlay" class="fixed inset-0 bg-black bg-opacity-70 hidden z-50 flex items-center justify-center">
+        <div id="tutorial-content" class="ancient-border rounded-lg p-6 max-w-2xl w-full mx-4">
+            <div class="text-xl font-bold mb-4 cultivation-banner">Tutorial</div>
+            <div id="tutorial-body" class="mb-4 scroll-container" style="max-height: 70vh; overflow-y: auto;">
+                <!-- Tutorial content will be populated here -->
+            </div>
+            <div class="flex justify-between">
+                <button id="tutorial-prev" class="ancient-button" disabled>Previous</button>
+                <span id="tutorial-page">1/5</span>
+                <button id="tutorial-next" class="ancient-button">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            version: '1.0.0',
+            player: {
+                realm: 0,
+                stage: 1,
+                qi: 0,
+                lastUpdated: Date.now()
+            },
+            tasks: [],
+            generatedTasks: [],
+            stones: {
+                basic: 0,
+                low: 0,
+                medium: 0,
+                high: 0,
+                supreme: 0,
+                divine: 0
+            },
+            selectedStones: {
+                basic: 0,
+                low: 0,
+                medium: 0,
+                high: 0,
+                supreme: 0,
+                divine: 0
+            },
+            stats: {
+                totalTasks: 0,
+                completedTasks: 0,
+                totalQiEarned: 0,
+                totalStonesFound: {
+                    basic: 0,
+                    low: 0,
+                    medium: 0,
+                    high: 0,
+                    supreme: 0,
+                    divine: 0
+                },
+                stonesFused: {
+                    basic: 0,
+                    low: 0,
+                    medium: 0,
+                    high: 0,
+                    supreme: 0
+                },
+                breakthroughs: 0,
+                failedAttempts: 0,
+                highestRealmReached: 0
+            }
+        };
+
+        // Cultivation realms data
+        const cultivationRealms = [
+            {
+                name: "Mortal",
+                chineseName: "凡人",
+                stages: 9,
+                multiplier: 1,
+                description: "An ordinary person with no spiritual awareness. The journey of a thousand miles begins with a single step.",
+                baseQiRequirement: 100
+            },
+            {
+                name: "Qi Condensation",
+                chineseName: "凝气",
+                stages: 9,
+                multiplier: 1.2,
+                description: "Beginning to sense the qi of heaven and earth. The first step on the path of immortality.",
+                baseQiRequirement: 500
+            },
+            {
+                name: "Foundation Establishment",
+                chineseName: "筑基",
+                stages: 9,
+                multiplier: 1.5,
+                description: "Building a solid foundation for future cultivation. The spiritual roots take hold.",
+                baseQiRequirement: 2000
+            },
+            {
+                name: "Core Formation",
+                chineseName: "结丹",
+                stages: 9,
+                multiplier: 2,
+                description: "Forming a golden core within the dantian. The power to command elements begins to manifest.",
+                baseQiRequirement: 8000
+            },
+            {
+                name: "Nascent Soul",
+                chineseName: "元婴",
+                stages: 9,
+                multiplier: 3,
+                description: "A secondary soul forms within. Consciousness can leave the physical body for short periods.",
+                baseQiRequirement: 25000
+            },
+            {
+                name: "Soul Transformation",
+                chineseName: "化神",
+                stages: 9,
+                multiplier: 5,
+                description: "The mortal body begins its transformation into an immortal vessel. Lifespan greatly increases.",
+                baseQiRequirement: 80000
+            },
+            {
+                name: "Void Refinement",
+                chineseName: "炼虚",
+                stages: 9,
+                multiplier: 8,
+                description: "Refining the void between realms. Space and distance become malleable concepts.",
+                baseQiRequirement: 250000
+            },
+            {
+                name: "Body Integration",
+                chineseName: "合体",
+                stages: 9,
+                multiplier: 12,
+                description: "Integrating with heaven and earth. Natural laws bend to your will.",
+                baseQiRequirement: 800000
+            },
+            {
+                name: "Mahayana",
+                chineseName: "大乘",
+                stages: 9,
+                multiplier: 20,
+                description: "Becoming one with the universe. Comprehension of the grand dao begins.",
+                baseQiRequirement: 2500000
+            },
+            {
+                name: "True Immortal",
+                chineseName: "真仙",
+                stages: 9,
+                multiplier: 35,
+                description: "Transcending mortal limitations. Immortality in its truest form is achieved.",
+                baseQiRequirement: 8000000
+            },
+            {
+                name: "Golden Immortal",
+                chineseName: "金仙",
+                stages: 9,
+                multiplier: 60,
+                description: "Existence as pure golden light. Creation and destruction are within your grasp.",
+                baseQiRequirement: 25000000
+            },
+            {
+                name: "Immortal Emperor",
+                chineseName: "仙帝",
+                stages: 9,
+                multiplier: 100,
+                description: "Ruling over all immortals. Your name is revered throughout the Three Realms.",
+                baseQiRequirement: 80000000
+            },
+            {
+                name: "Dao Sovereign",
+                chineseName: "道主",
+                stages: Number.POSITIVE_INFINITY,
+                multiplier: 200,
+                description: "Sovereign of the Dao itself. The universe is but a reflection of your will.",
+                baseQiRequirement: 250000000
+            }
+        ];
+
+        // Spirit stone data
+        const spiritStones = {
+            basic: { 
+                name: "Basic Spirit Stone", 
+                successBoost: 1,
+                nextTier: "low"
+            },
+            low: { 
+                name: "Low-Grade Spirit Stone", 
+                successBoost: 5,
+                nextTier: "medium"
+            },
+            medium: { 
+                name: "Medium-Grade Spirit Stone", 
+                successBoost: 10,
+                nextTier: "high"
+            },
+            high: { 
+                name: "High-Grade Spirit Stone", 
+                successBoost: 15,
+                nextTier: "supreme"
+            },
+            supreme: { 
+                name: "Supreme-Grade Spirit Stone", 
+                successBoost: 20,
+                nextTier: "divine"
+            },
+            divine: { 
+                name: "Divine-Grade Spirit Stone", 
+                successBoost: 25,
+                nextTier: null
+            }
+        };
+
+        // Tutorial data
+        const tutorialContent = [
+            {
+                title: "Welcome to 青云修仙录!",
+                content: `
+                    <div class="flex flex-col items-center mb-4">
+                        <div class="rotate-symbol text-4xl mb-2">☯</div>
+                        <h3 class="text-xl font-bold">Cultivation Through Tasks</h3>
+                    </div>
+                    <p class="mb-2">This application combines a task management system with a cultivation-themed idle game to help you overcome procrastination while having fun.</p>
+                    <p class="mb-2">Complete real-life tasks to gain qi and spirit stones, which will help you advance through cultivation realms!</p>
+                    <p>This tutorial will guide you through the main features of the application.</p>
+                `
+            },
+            {
+                title: "Task Management",
+                content: `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <h3 class="font-bold mb-2">Creating Tasks</h3>
+                            <p>1. Enter a task name</p>
+                            <p>2. Add tags (optional, comma-separated)</p>
+                            <p>3. Click "Add Task" to save it</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-2">Managing Tasks</h3>
+                            <p>• Edit or delete existing tasks</p>
+                            <p>• Sort by name or tags</p>
+                            <p>• Select multiple tasks with checkboxes</p>
+                        </div>
+                    </div>
+                    <div class="ancient-border p-3 mb-4">
+                        <h3 class="font-bold mb-2">Task Generator</h3>
+                        <p>1. Choose how many tasks to generate (1-10)</p>
+                        <p>2. Optionally filter by specific tags</p>
+                        <p>3. Click "Generate Tasks" to randomly select from your task list</p>
+                        <p>4. Complete tasks to earn qi and spirit stones</p>
+                        <p>5. Give up tasks with a qi penalty if needed</p>
+                    </div>
+                `
+            },
+            {
+                title: "Cultivation System",
+                content: `
+                    <div class="mb-4">
+                        <h3 class="font-bold mb-2">Cultivation Progression</h3>
+                        <p>• Complete tasks to gain qi</p>
+                        <p>• Gain passive qi at a base rate of 0.5 qi/min</p>
+                        <p>• Higher realms provide higher multipliers for passive gains</p>
+                        <p>• Each realm has multiple stages you must break through</p>
+                    </div>
+                    <div class="ancient-border p-3 mb-4">
+                        <h3 class="font-bold mb-2">Breakthrough</h3>
+                        <p>• Accumulate sufficient qi to attempt a breakthrough</p>
+                        <p>• Each attempt has a base success rate</p>
+                        <p>• Use spirit stones to increase your success chance</p>
+                        <p>• Failed breakthroughs result in qi loss (15-35%)</p>
+                        <p>• Successful breakthroughs advance you to the next stage or realm</p>
+                    </div>
+                `
+            },
+            {
+                title: "Spirit Stones",
+                content: `
+                    <div class="mb-4">
+                        <h3 class="font-bold mb-2">Spirit Stone Tiers</h3>
+                        <div class="grid grid-cols-3 gap-2 mb-2">
+                            <div class="text-center">
+                                <div class="spirit-stone stone-basic mx-auto mb-1" style="width:30px;height:30px"></div>
+                                <p class="text-sm">Basic</p>
+                                <p class="text-xs">+1%</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="spirit-stone stone-low mx-auto mb-1" style="width:30px;height:30px"></div>
+                                <p class="text-sm">Low</p>
+                                <p class="text-xs">+5%</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="spirit-stone stone-medium mx-auto mb-1" style="width:30px;height:30px"></div>
+                                <p class="text-sm">Medium</p>
+                                <p class="text-xs">+10%</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="spirit-stone stone-high mx-auto mb-1" style="width:30px;height:30px"></div>
+                                <p class="text-sm">High</p>
+                                <p class="text-xs">+15%</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="spirit-stone stone-supreme mx-auto mb-1" style="width:30px;height:30px"></div>
+                                <p class="text-sm">Supreme</p>
+                                <p class="text-xs">+20%</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="spirit-stone stone-divine mx-auto mb-1" style="width:30px;height:30px"></div>
+                                <p class="text-sm">Divine</p>
+                                <p class="text-xs">+25%</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="font-bold mb-2">Acquiring & Using Spirit Stones</h3>
+                        <p>• Earn spirit stones by completing tasks</p>
+                        <p>• Higher realms increase chances of finding better stones</p>
+                        <p>• Fuse 100 lower-tier stones to create 1 higher-tier stone</p>
+                        <p>• Use stones to boost breakthrough success rate</p>
+                        <p>• Lower stones have reduced effectiveness in higher realms</p>
+                    </div>
+                `
+            },
+            {
+                title: "Additional Features",
+                content: `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <h3 class="font-bold mb-2">Statistics</h3>
+                            <p>• Track completed tasks</p>
+                            <p>• Monitor breakthrough success rate</p>
+                            <p>• View spirit stones collected</p>
+                            <p>• See your highest realm reached</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-2">Settings</h3>
+                            <p>• Export/Import game data</p>
+                            <p>• Reset statistics</p>
+                            <p>• Hard reset option</p>
+                            <p>• View this tutorial again</p>
+                        </div>
+                    </div>
+                    <div class="ancient-border p-3 text-center">
+                        <h3 class="font-bold mb-2">You're Ready to Begin!</h3>
+                        <p class="mb-2">Start by adding some tasks, then generate random ones to complete.</p>
+                        <p>Remember: Consistent effort leads to cultivation mastery!</p>
+                        <div class="flex justify-center mt-2">
+                            <div class="rotate-symbol text-2xl">☯</div>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        // DOM elements
+        const elements = {
+            tabs: document.querySelectorAll('.tab-button'),
+            tabContents: document.querySelectorAll('.tab-content'),
+            
+            // Cultivation tab
+            currentRealm: document.getElementById('current-realm'),
+            currentStage: document.getElementById('current-stage'),
+            maxStage: document.getElementById('max-stage'),
+            qiProgressBar: document.getElementById('qi-progress-bar'),
+            currentQi: document.getElementById('current-qi'),
+            targetQi: document.getElementById('target-qi'),
+            baseRate: document.getElementById('base-rate'),
+            currentMultiplier: document.getElementById('current-multiplier'),
+            effectiveRate: document.getElementById('effective-rate'),
+            nextHourYield: document.getElementById('next-hour-yield'),
+            realmDescription: document.getElementById('realm-description'),
+            
+            breakthroughQiRequired: document.getElementById('breakthrough-qi-required'),
+            baseSuccessRate: document.getElementById('base-success-rate'),
+            finalSuccessRate: document.getElementById('final-success-rate'),
+            selectedStones: document.getElementById('selected-stones'),
+            successBoost: document.getElementById('success-boost'),
+            clearStones: document.getElementById('clear-stones'),
+            attemptBreakthrough: document.getElementById('attempt-breakthrough'),
+            
+            // Tasks tab
+            taskName: document.getElementById('task-name'),
+            taskTags: document.getElementById('task-tags'),
+            addTask: document.getElementById('add-task'),
+            sortTasks: document.getElementById('sort-tasks'),
+            selectAllTasks: document.getElementById('select-all-tasks'),
+            taskList: document.getElementById('task-list'),
+            editSelectedTask: document.getElementById('edit-selected-task'),
+            deleteSelectedTasks: document.getElementById('delete-selected-tasks'),
+            
+            taskCount: document.getElementById('task-count'),
+            filterTags: document.getElementById('filter-tags'),
+            generateTasks: document.getElementById('generate-tasks'),
+            generatedTasks: document.getElementById('generated-tasks'),
+            completeAllTasks: document.getElementById('complete-all-tasks'),
+            giveUpTasks: document.getElementById('give-up-tasks'),
+            
+            // Inventory tab
+            stoneCounters: {
+                basic: document.getElementById('basic-stone-count'),
+                low: document.getElementById('low-stone-count'),
+                medium: document.getElementById('medium-stone-count'),
+                high: document.getElementById('high-stone-count'),
+                supreme: document.getElementById('supreme-stone-count'),
+                divine: document.getElementById('divine-stone-count')
+            },
+            stoneButtons: document.querySelectorAll('[data-stone]'),
+            
+            // Statistics tab
+            statTotalTasks: document.getElementById('stat-total-tasks'),
+            statCompletedTasks: document.getElementById('stat-completed-tasks'),
+            statAvgQi: document.getElementById('stat-avg-qi'),
+            statAvgStones: document.getElementById('stat-avg-stones'),
+            statBreakthroughs: document.getElementById('stat-breakthroughs'),
+            statFailedAttempts: document.getElementById('stat-failed-attempts'),
+            statSuccessRate: document.getElementById('stat-success-rate'),
+            statHighestRealm: document.getElementById('stat-highest-realm'),
+            
+            statBasicStones: document.getElementById('stat-basic-stones'),
+            statLowStones: document.getElementById('stat-low-stones'),
+            statMediumStones: document.getElementById('stat-medium-stones'),
+            statHighStones: document.getElementById('stat-high-stones'),
+            statSupremeStones: document.getElementById('stat-supreme-stones'),
+            statDivineStones: document.getElementById('stat-divine-stones'),
+            
+            statBasicFused: document.getElementById('stat-basic-fused'),
+            statLowFused: document.getElementById('stat-low-fused'),
+            statMediumFused: document.getElementById('stat-medium-fused'),
+            statHighFused: document.getElementById('stat-high-fused'),
+            statSupremeFused: document.getElementById('stat-supreme-fused'),
+            
+            // Settings tab
+            exportGame: document.getElementById('export-game'),
+            importData: document.getElementById('import-data'),
+            importGame: document.getElementById('import-game'),
+            resetStats: document.getElementById('reset-stats'),
+            hardReset: document.getElementById('hard-reset'),
+            showTutorial: document.getElementById('show-tutorial'),
+            
+            // Modals
+            modalOverlay: document.getElementById('modal-overlay'),
+            modalContent: document.getElementById('modal-content'),
+            modalHeader: document.getElementById('modal-header'),
+            modalBody: document.getElementById('modal-body'),
+            modalFooter: document.getElementById('modal-footer'),
+            modalCancel: document.getElementById('modal-cancel'),
+            modalConfirm: document.getElementById('modal-confirm'),
+            
+            // Toast
+            toastContainer: document.getElementById('toast-container'),
+            
+            // Tutorial
+            tutorialOverlay: document.getElementById('tutorial-overlay'),
+            tutorialBody: document.getElementById('tutorial-body'),
+            tutorialPrev: document.getElementById('tutorial-prev'),
+            tutorialNext: document.getElementById('tutorial-next'),
+            tutorialPage: document.getElementById('tutorial-page')
+        };
+
+        // Initialize tabs
+        elements.tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+                
+                // Update active tab
+                elements.tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Show the corresponding tab content
+                elements.tabContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+            });
+        });
+
+        // Get current realm object
+        function getCurrentRealm() {
+            return cultivationRealms[gameState.player.realm];
+        }
+
+        // Get next realm object
+        function getNextRealm() {
+            if (gameState.player.realm < cultivationRealms.length - 1) {
+                return cultivationRealms[gameState.player.realm + 1];
+            }
+            return null;
+        }
+
+        // Calculate qi required for current stage breakthrough
+        function getQiRequiredForBreakthrough() {
+            const currentRealm = getCurrentRealm();
+            const baseRequirement = currentRealm.baseQiRequirement;
+            const stageFactor = Math.pow(1.5, gameState.player.stage - 1);
+            return Math.floor(baseRequirement * stageFactor);
+        }
+
+        // Calculate base success rate for breakthrough
+        function getBaseSuccessRate() {
+            const currentRealm = getCurrentRealm();
+            const baseRate = 90 - (gameState.player.realm * 5);
+            const stageReduction = (gameState.player.stage - 1) * 2;
+            return Math.max(15, baseRate - stageReduction);
+        }
+
+        // Calculate stone effectiveness based on realm difference
+        function getStoneEffectiveness(stoneType) {
+            // Define which realm each stone type is associated with
+            const stoneRealms = {
+                basic: 0, // Mortal
+                low: 2,   // Foundation Establishment
+                medium: 4, // Nascent Soul
+                high: 6,  // Void Refinement
+                supreme: 8, // Mahayana
+                divine: 10 // Golden Immortal
+            };
+            
+            const currentRealm = gameState.player.realm;
+            const stoneRealm = stoneRealms[stoneType];
+            
+            const realmDifference = currentRealm - stoneRealm;
+            
+            if (realmDifference <= 0) {
+                return 1.0; // 100% effectiveness for stones of same or higher realm
+            } else if (realmDifference === 1) {
+                return 0.75; // 75% effectiveness for stones one realm below
+            } else if (realmDifference === 2) {
+                return 0.5; // 50% effectiveness for stones two realms below
+            } else {
+                return 0.25; // 25% effectiveness for stones three or more realms below
+            }
+        }
+
+        // Calculate success rate boost from selected stones
+        function calculateSuccessBoost() {
+            let totalBoost = 0;
+            
+            for (const [type, count] of Object.entries(gameState.selectedStones)) {
+                if (count > 0) {
+                    const stoneInfo = spiritStones[type];
+                    const effectiveness = getStoneEffectiveness(type);
+                    totalBoost += stoneInfo.successBoost * count * effectiveness;
+                }
+            }
+            
+            return Math.floor(totalBoost);
+        }
+
+        // Calculate total success rate for breakthrough
+        function getTotalSuccessRate() {
+            const baseRate = getBaseSuccessRate();
+            const boostRate = calculateSuccessBoost();
+            return Math.min(99, baseRate + boostRate);
+        }
+
+        // Format large numbers with suffixes
+        function formatNumber(num) {
+            if (num < 1000) return num.toFixed(0);
+            
+            const suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi'];
+            const magnitude = Math.floor(Math.log10(num) / 3);
+            const suffix = suffixes[magnitude];
+            
+            const scaled = num / Math.pow(1000, magnitude);
+            const formatted = scaled >= 100 ? scaled.toFixed(0) : 
+                              scaled >= 10 ? scaled.toFixed(1) : 
+                              scaled.toFixed(2);
+            
+            return formatted + suffix;
+        }
+
+        // Update the UI for cultivation status
+        function updateCultivationUI() {
+            const currentRealm = getCurrentRealm();
+            
+            // Update realm and stage info
+            elements.currentRealm.textContent = `${currentRealm.name} (${currentRealm.chineseName})`;
+            elements.currentStage.textContent = gameState.player.stage;
+            elements.maxStage.textContent = isFinite(currentRealm.stages) ? currentRealm.stages : '∞';
+            
+            // Update qi progress
+            const qiRequired = getQiRequiredForBreakthrough();
+            const progressPercentage = Math.min(100, (gameState.player.qi / qiRequired) * 100);
+            elements.qiProgressBar.style.width = `${progressPercentage}%`;
+            elements.currentQi.textContent = formatNumber(gameState.player.qi);
+            elements.targetQi.textContent = formatNumber(qiRequired);
+            
+            // Update idle cultivation rate
+            elements.baseRate.textContent = `0.5 qi/min`;
+            elements.currentMultiplier.textContent = `×${currentRealm.multiplier.toFixed(1)}`;
+            elements.effectiveRate.textContent = `${(0.5 * currentRealm.multiplier).toFixed(1)} qi/min`;
+            elements.nextHourYield.textContent = formatNumber(0.5 * currentRealm.multiplier * 60);
+            
+            // Update realm description
+            elements.realmDescription.textContent = currentRealm.description;
+            
+            // Update breakthrough information
+            elements.breakthroughQiRequired.textContent = formatNumber(qiRequired);
+            
+            const baseSuccessRate = getBaseSuccessRate();
+            elements.baseSuccessRate.textContent = `${baseSuccessRate}%`;
+            
+            const finalSuccessRate = getTotalSuccessRate();
+            elements.finalSuccessRate.textContent = `${finalSuccessRate}%`;
+            
+            // Update breakthrough button status
+            if (gameState.player.qi >= qiRequired) {
+                elements.attemptBreakthrough.disabled = false;
+                elements.attemptBreakthrough.textContent = "Attempt Breakthrough";
+            } else {
+                elements.attemptBreakthrough.disabled = true;
+                elements.attemptBreakthrough.textContent = `Attempt Breakthrough (Insufficient Qi)`;
+            }
+        }
+
+        // Update the UI for spirit stones
+        function updateStonesUI() {
+            // Update stone counts in inventory
+            for (const type in gameState.stones) {
+                elements.stoneCounters[type].textContent = gameState.stones[type];
+            }
+            
+            // Update stone fusion buttons
+            elements.stoneButtons.forEach(button => {
+                const stoneType = button.getAttribute('data-stone');
+                if (gameState.stones[stoneType] >= 100) {
+                    button.disabled = false;
+                } else {
+                    button.disabled = true;
+                }
+            });
+            
+            // Update selected stones display
+            let selectedText = '';
+            let hasSelectedStones = false;
+            
+            for (const [type, count] of Object.entries(gameState.selectedStones)) {
+                if (count > 0) {
+                    hasSelectedStones = true;
+                    selectedText += `${count}× ${spiritStones[type].name}, `;
+                }
+            }
+            
+            if (hasSelectedStones) {
+                elements.selectedStones.textContent = selectedText.slice(0, -2);
+            } else {
+                elements.selectedStones.textContent = 'None';
+            }
+            
+            // Update success boost
+            const boost = calculateSuccessBoost();
+            elements.successBoost.textContent = `+${boost}%`;
+            
+            // Update stone count in UI
+            const stoneElements = document.querySelectorAll('.spirit-stone');
+            stoneElements.forEach(stoneEl => {
+                const type = stoneEl.getAttribute('data-type');
+                const countEl = stoneEl.querySelector('.stone-count');
+                if (countEl) {
+                    countEl.textContent = gameState.stones[type];
+                }
+            });
+        }
+
+        // Update the statistics UI
+        function updateStatisticsUI() {
+            // Task statistics
+            elements.statTotalTasks.textContent = gameState.stats.totalTasks;
+            elements.statCompletedTasks.textContent = gameState.stats.completedTasks;
+            
+            const avgQi = gameState.stats.completedTasks > 0 ? 
+                (gameState.stats.totalQiEarned / gameState.stats.completedTasks).toFixed(1) : '0';
+            elements.statAvgQi.textContent = avgQi;
+            
+            const totalStones = Object.values(gameState.stats.totalStonesFound).reduce((a, b) => a + b, 0);
+            const avgStones = gameState.stats.completedTasks > 0 ? 
+                (totalStones / gameState.stats.completedTasks).toFixed(2) : '0';
+            elements.statAvgStones.textContent = avgStones;
+            
+            // Breakthrough statistics
+            elements.statBreakthroughs.textContent = gameState.stats.breakthroughs;
+            elements.statFailedAttempts.textContent = gameState.stats.failedAttempts;
+            
+            const totalAttempts = gameState.stats.breakthroughs + gameState.stats.failedAttempts;
+            const successRate = totalAttempts > 0 ? 
+                ((gameState.stats.breakthroughs / totalAttempts) * 100).toFixed(1) : '0';
+            elements.statSuccessRate.textContent = `${successRate}%`;
+            
+            elements.statHighestRealm.textContent = cultivationRealms[gameState.stats.highestRealmReached].name;
+            
+            // Spirit stone statistics
+            elements.statBasicStones.textContent = gameState.stats.totalStonesFound.basic;
+            elements.statLowStones.textContent = gameState.stats.totalStonesFound.low;
+            elements.statMediumStones.textContent = gameState.stats.totalStonesFound.medium;
+            elements.statHighStones.textContent = gameState.stats.totalStonesFound.high;
+            elements.statSupremeStones.textContent = gameState.stats.totalStonesFound.supreme;
+            elements.statDivineStones.textContent = gameState.stats.totalStonesFound.divine;
+            
+            // Fusion statistics
+            elements.statBasicFused.textContent = gameState.stats.stonesFused.basic;
+            elements.statLowFused.textContent = gameState.stats.stonesFused.low;
+            elements.statMediumFused.textContent = gameState.stats.stonesFused.medium;
+            elements.statHighFused.textContent = gameState.stats.stonesFused.high;
+            elements.statSupremeFused.textContent = gameState.stats.stonesFused.supreme;
+        }
+
+        // Render task list
+        function renderTaskList() {
+            if (gameState.tasks.length === 0) {
+                elements.taskList.innerHTML = '<p class="text-center italic">No tasks added yet</p>';
+                elements.editSelectedTask.disabled = true;
+                elements.deleteSelectedTasks.disabled = true;
+                return;
+            }
+            
+            // Sort tasks if needed
+            const sortOption = elements.sortTasks.value;
+            const sortedTasks = [...gameState.tasks];
+            
+            if (sortOption === 'name-asc') {
+                sortedTasks.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortOption === 'name-desc') {
+                sortedTasks.sort((a, b) => b.name.localeCompare(a.name));
+            } else if (sortOption === 'tag-asc') {
+                sortedTasks.sort((a, b) => (a.tags[0] || '').localeCompare(b.tags[0] || ''));
+            } else if (sortOption === 'tag-desc') {
+                sortedTasks.sort((a, b) => (b.tags[0] || '').localeCompare(a.tags[0] || ''));
+            }
+            
+            // Build the task list HTML
+            elements.taskList.innerHTML = '';
+            
+            sortedTasks.forEach((task, index) => {
+                const taskEl = document.createElement('div');
+                taskEl.className = 'mb-2 p-2 border border-ancient-accent rounded flex items-start';
+                taskEl.dataset.id = task.id;
+                
+                // Task selection checkbox
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'custom-checkbox mr-2 mt-1';
+                checkbox.dataset.id = task.id;
+                
+                // Task content
+                const taskContent = document.createElement('div');
+                taskContent.className = 'flex-grow';
+                
+                const taskName = document.createElement('div');
+                taskName.className = 'font-bold';
+                taskName.textContent = task.name;
+                
+                const taskTags = document.createElement('div');
+                taskTags.className = 'flex flex-wrap mt-1';
+                
+                if (task.tags && task.tags.length > 0) {
+                    task.tags.forEach(tag => {
+                        if (tag.trim()) {
+                            const tagBadge = document.createElement('span');
+                            tagBadge.className = 'badge';
+                            tagBadge.textContent = tag.trim();
+                            taskTags.appendChild(tagBadge);
+                        }
+                    });
+                }
+                
+                taskContent.appendChild(taskName);
+                taskContent.appendChild(taskTags);
+                
+                taskEl.appendChild(checkbox);
+                taskEl.appendChild(taskContent);
+                
+                elements.taskList.appendChild(taskEl);
+            });
+            
+            // Handle checkbox selection for edit/delete buttons
+            updateTaskSelectionStatus();
+        }
+
+        // Render generated tasks
+        function renderGeneratedTasks() {
+            if (gameState.generatedTasks.length === 0) {
+                elements.generatedTasks.innerHTML = '<p class="text-center italic">No tasks generated yet</p>';
+                elements.completeAllTasks.disabled = true;
+                elements.giveUpTasks.disabled = true;
+                return;
+            }
+            
+            elements.generatedTasks.innerHTML = '';
+            
+            gameState.generatedTasks.forEach((task, index) => {
+                const taskEl = document.createElement('div');
+                taskEl.className = 'mb-3 p-3 border border-ancient-accent rounded';
+                
+                // Task header with name and reward
+                const taskHeader = document.createElement('div');
+                taskHeader.className = 'flex justify-between items-center mb-2';
+                
+                const taskName = document.createElement('div');
+                taskName.className = 'font-bold';
+                taskName.textContent = task.name;
+                
+                const taskReward = document.createElement('div');
+                taskReward.className = 'text-sm';
+                taskReward.innerHTML = `Reward: <span class="font-bold">${formatNumber(task.reward)} qi</span>`;
+                
+                taskHeader.appendChild(taskName);
+                taskHeader.appendChild(taskReward);
+                
+                // Task tags
+                const taskTags = document.createElement('div');
+                taskTags.className = 'flex flex-wrap mb-2';
+                
+                if (task.tags && task.tags.length > 0) {
+                    task.tags.forEach(tag => {
+                        if (tag.trim()) {
+                            const tagBadge = document.createElement('span');
+                            tagBadge.className = 'badge';
+                            tagBadge.textContent = tag.trim();
+                            taskTags.appendChild(tagBadge);
+                        }
+                    });
+                }
+                
+                // Task action buttons
+                const taskActions = document.createElement('div');
+                taskActions.className = 'flex justify-end space-x-2';
+                
+                const completeButton = document.createElement('button');
+                completeButton.className = 'ancient-button text-sm';
+                completeButton.textContent = 'Complete';
+                completeButton.addEventListener('click', () => completeTask(index));
+                
+                taskActions.appendChild(completeButton);
+                
+                // Assemble the task element
+                taskEl.appendChild(taskHeader);
+                taskEl.appendChild(taskTags);
+                taskEl.appendChild(taskActions);
+                
+                elements.generatedTasks.appendChild(taskEl);
+            });
+            
+            // Enable task action buttons
+            elements.completeAllTasks.disabled = false;
+            elements.giveUpTasks.disabled = false;
+        }
+
+        // Update task selection status
+        function updateTaskSelectionStatus() {
+            const checkboxes = elements.taskList.querySelectorAll('input[type="checkbox"]');
+            const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            
+            if (selectedCount === 0) {
+                elements.editSelectedTask.disabled = true;
+                elements.deleteSelectedTasks.disabled = true;
+            } else {
+                elements.deleteSelectedTasks.disabled = false;
+                elements.editSelectedTask.disabled = selectedCount !== 1;
+            }
+        }
+
+        // Generate random tasks
+        function generateRandomTasks() {
+            if (gameState.tasks.length === 0) {
+                showToast("You need to add some tasks first", "error");
+                return;
+            }
+            
+            const count = parseInt(elements.taskCount.value) || 1;
+            if (count < 1 || count > 10) {
+                showToast("Please enter a number between 1 and 10", "error");
+                return;
+            }
+            
+            // Get filter tags if any
+            const filterTags = elements.filterTags.value
+                .split(',')
+                .map(tag => tag.trim())
+                .filter(tag => tag);
+            
+            // Filter tasks by tags if needed
+            let eligibleTasks = [...gameState.tasks];
+            
+            if (filterTags.length > 0) {
+                eligibleTasks = eligibleTasks.filter(task => {
+                    return task.tags.some(tag => 
+                        filterTags.some(filterTag => 
+                            filterTag.toLowerCase() === tag.toLowerCase()
+                        )
+                    );
+                });
+                
+                if (eligibleTasks.length === 0) {
+                    showToast("No tasks match the selected tags", "error");
+                    return;
+                }
+            }
+            
+            // Clear existing generated tasks
+            gameState.generatedTasks = [];
+            
+            // Generate new random tasks
+            for (let i = 0; i < count; i++) {
+                if (eligibleTasks.length === 0) break;
+                
+                const randomIndex = Math.floor(Math.random() * eligibleTasks.length);
+                const selectedTask = { ...eligibleTasks[randomIndex] };
+                
+                // Generate random reward based on realm
+                const currentRealm = getCurrentRealm();
+                const baseReward = currentRealm.baseQiRequirement / 10;
+                const randomFactor = 0.8 + (Math.random() * 0.4); // 80% to 120%
+                selectedTask.reward = Math.floor(baseReward * randomFactor);
+                
+                gameState.generatedTasks.push(selectedTask);
+                
+                // Remove task from eligible pool to prevent duplicates if there are enough tasks
+                if (eligibleTasks.length > count - i - 1) {
+                    eligibleTasks.splice(randomIndex, 1);
+                }
+            }
+            
+            renderGeneratedTasks();
+            showToast(`Generated ${gameState.generatedTasks.length} tasks`, "success");
+        }
+
+        // Complete a task
+        function completeTask(index) {
+            const task = gameState.generatedTasks[index];
+            
+            // Award qi
+            gameState.player.qi += task.reward;
+            gameState.stats.totalQiEarned += task.reward;
+            
+            // Possibly award spirit stones based on realm
+            const stoneTypes = ['basic', 'low', 'medium', 'high', 'supreme', 'divine'];
+            const maxStoneIndex = Math.min(Math.floor(gameState.player.realm / 2), stoneTypes.length - 1);
+            
+            let stoneMessage = '';
+            
+            // 40% chance to get a spirit stone
+            if (Math.random() < 0.4) {
+                // Determine which stone type to award
+                // Higher chance for lower tier stones, small chance for higher tier
+                let stoneIndex;
+                const roll = Math.random();
+                
+                if (roll < 0.6) {
+                    // 60% chance for lowest available stone
+                    stoneIndex = 0;
+                } else if (roll < 0.85) {
+                    // 25% chance for second lowest available stone
+                    stoneIndex = Math.min(1, maxStoneIndex);
+                } else if (roll < 0.95) {
+                    // 10% chance for third lowest available stone
+                    stoneIndex = Math.min(2, maxStoneIndex);
+                } else if (roll < 0.98) {
+                    // 3% chance for fourth lowest available stone
+                    stoneIndex = Math.min(3, maxStoneIndex);
+                } else if (roll < 0.995) {
+                    // 1.5% chance for fifth lowest available stone
+                    stoneIndex = Math.min(4, maxStoneIndex);
+                } else {
+                    // 0.5% chance for highest available stone
+                    stoneIndex = maxStoneIndex;
+                }
+                
+                const stoneType = stoneTypes[stoneIndex];
+                gameState.stones[stoneType]++;
+                gameState.stats.totalStonesFound[stoneType]++;
+                
+                stoneMessage = ` and 1 ${spiritStones[stoneType].name}`;
+            }
+            
+            // Update stats
+            gameState.stats.completedTasks++;
+            
+            // Remove the task from generated list
+            gameState.generatedTasks.splice(index, 1);
+            
+            // Update UI
+            renderGeneratedTasks();
+            updateCultivationUI();
+            updateStonesUI();
+            updateStatisticsUI();
+            
+            showToast(`Completed: ${task.name}. Gained ${formatNumber(task.reward)} qi${stoneMessage}`, "success");
+            
+            // Save game state
+            saveGameState();
+        }
+
+        // Complete all tasks
+        function completeAllTasks() {
+            if (gameState.generatedTasks.length === 0) {
+                return;
+            }
+            
+            let totalQi = 0;
+            const stonesGained = {
+                basic: 0,
+                low: 0,
+                medium: 0,
+                high: 0,
+                supreme: 0,
+                divine: 0
+            };
+            
+            // Process each task
+            gameState.generatedTasks.forEach(task => {
+                // Award qi
+                totalQi += task.reward;
+                gameState.player.qi += task.reward;
+                gameState.stats.totalQiEarned += task.reward;
+                
+                // Possibly award spirit stones based on realm
+                const stoneTypes = ['basic', 'low', 'medium', 'high', 'supreme', 'divine'];
+                const maxStoneIndex = Math.min(Math.floor(gameState.player.realm / 2), stoneTypes.length - 1);
+                
+                // 40% chance to get a spirit stone per task
+                if (Math.random() < 0.4) {
+                    // Determine which stone type to award
+                    let stoneIndex;
+                    const roll = Math.random();
+                    
+                    if (roll < 0.6) {
+                        stoneIndex = 0;
+                    } else if (roll < 0.85) {
+                        stoneIndex = Math.min(1, maxStoneIndex);
+                    } else if (roll < 0.95) {
+                        stoneIndex = Math.min(2, maxStoneIndex);
+                    } else if (roll < 0.98) {
+                        stoneIndex = Math.min(3, maxStoneIndex);
+                    } else if (roll < 0.995) {
+                        stoneIndex = Math.min(4, maxStoneIndex);
+                    } else {
+                        stoneIndex = maxStoneIndex;
+                    }
+                    
+                    const stoneType = stoneTypes[stoneIndex];
+                    gameState.stones[stoneType]++;
+                    gameState.stats.totalStonesFound[stoneType]++;
+                    stonesGained[stoneType]++;
+                }
+                
+                // Update task completion stat
+                gameState.stats.completedTasks++;
+            });
+            
+            // Clear generated tasks
+            const completedCount = gameState.generatedTasks.length;
+            gameState.generatedTasks = [];
+            
+            // Update UI
+            renderGeneratedTasks();
+            updateCultivationUI();
+            updateStonesUI();
+            updateStatisticsUI();
+            
+            // Build message about stones gained
+            let stoneMessage = '';
+            let anyStones = false;
+            
+            for (const [type, count] of Object.entries(stonesGained)) {
+                if (count > 0) {
+                    if (anyStones) {
+                        stoneMessage += ', ';
+                    } else {
+                        stoneMessage = ' and ';
+                        anyStones = true;
+                    }
+                    stoneMessage += `${count} ${spiritStones[type].name}${count > 1 ? 's' : ''}`;
+                }
+            }
+            
+            showToast(`Completed ${completedCount} tasks. Gained ${formatNumber(totalQi)} qi${stoneMessage}`, "success");
+            
+            // Save game state
+            saveGameState();
+        }
+
+        // Give up on generated tasks
+        function giveUpTasks() {
+            if (gameState.generatedTasks.length === 0) {
+                return;
+            }
+            
+            showModal(
+                "Give Up Tasks",
+                "Are you sure you want to give up on all generated tasks? You will lose some qi as a penalty.",
+                () => {
+                    // Calculate qi penalty (3-10% of breakthrough requirement)
+                    const qiRequired = getQiRequiredForBreakthrough();
+                    const penaltyPercentage = 3 + Math.floor(Math.random() * 8); // 3-10%
+                    const penalty = Math.floor(qiRequired * (penaltyPercentage / 100));
+                    
+                    // Apply penalty, but don't go below 0
+                    gameState.player.qi = Math.max(0, gameState.player.qi - penalty);
+                    
+                    // Clear generated tasks
+                    const taskCount = gameState.generatedTasks.length;
+                    gameState.generatedTasks = [];
+                    
+                    // Update UI
+                    renderGeneratedTasks();
+                    updateCultivationUI();
+                    
+                    showToast(`Gave up on ${taskCount} tasks. Lost ${formatNumber(penalty)} qi (${penaltyPercentage}% penalty)`, "info");
+                    
+                    // Save game state
+                    saveGameState();
+                }
+            );
+        }
+
+        // Attempt breakthrough
+        function attemptBreakthrough() {
+            const qiRequired = getQiRequiredForBreakthrough();
+            
+            if (gameState.player.qi < qiRequired) {
+                showToast("Insufficient qi for breakthrough", "error");
+                return;
+            }
+            
+            const successRate = getTotalSuccessRate();
+            const roll = Math.random() * 100;
+            const success = roll < successRate;
+            
+            // Use selected spirit stones
+            for (const type in gameState.selectedStones) {
+                gameState.stones[type] -= gameState.selectedStones[type];
+                gameState.selectedStones[type] = 0;
+            }
+            
+            // Consume qi for the attempt
+            gameState.player.qi -= qiRequired;
+            
+            if (success) {
+                // Successful breakthrough
+                gameState.player.stage++;
+                gameState.stats.breakthroughs++;
+                
+                const currentRealm = getCurrentRealm();
+                
+                // Check if we need to advance to next realm
+                if (gameState.player.stage > currentRealm.stages && gameState.player.realm < cultivationRealms.length - 1) {
+                    gameState.player.realm++;
+                    gameState.player.stage = 1;
+                    
+                    if (gameState.player.realm > gameState.stats.highestRealmReached) {
+                        gameState.stats.highestRealmReached = gameState.player.realm;
+                    }
+                    
+                    const newRealm = getCurrentRealm();
+                    showToast(`Breakthrough success! Advanced to ${newRealm.name} (${newRealm.chineseName}) realm!`, "success");
+                } else {
+                    showToast(`Breakthrough success! Advanced to stage ${gameState.player.stage}`, "success");
+                }
+            } else {
+                // Failed breakthrough
+                gameState.stats.failedAttempts++;
+                
+                // Calculate qi loss (15-35% of current qi)
+                const penaltyPercentage = 15 + Math.floor(Math.random() * 21); // 15-35%
+                const penalty = Math.floor(gameState.player.qi * (penaltyPercentage / 100));
+                
+                gameState.player.qi = Math.max(0, gameState.player.qi - penalty);
+                
+                showToast(`Breakthrough failed! Lost ${formatNumber(penalty)} qi (${penaltyPercentage}% penalty)`, "error");
+            }
+            
+            // Update UI
+            updateCultivationUI();
+            updateStonesUI();
+            updateStatisticsUI();
+            
+            // Save game state
+            saveGameState();
+        }
+
+        // Fuse spirit stones
+        function fuseStones(type) {
+            if (gameState.stones[type] < 100) {
+                showToast(`You need 100 ${spiritStones[type].name}s to fuse`, "error");
+                return;
+            }
+            
+            const nextTier = spiritStones[type].nextTier;
+            if (!nextTier) {
+                showToast(`${spiritStones[type].name}s are already the highest tier`, "error");
+                return;
+            }
+            
+            // Consume 100 lower tier stones
+            gameState.stones[type] -= 100;
+            
+            // Create 1 higher tier stone
+            gameState.stones[nextTier]++;
+            
+            // Update statistics
+            gameState.stats.stonesFused[type]++;
+            
+            // Update UI
+            updateStonesUI();
+            updateStatisticsUI();
+            
+            showToast(`Successfully fused 100 ${spiritStones[type].name}s into 1 ${spiritStones[nextTier].name}`, "success");
+            
+            // Save game state
+            saveGameState();
+        }
+
+        // Show a toast notification
+        function showToast(message, type = "info") {
+            const toast = document.createElement('div');
+            toast.className = 'mb-2 p-3 rounded shadow-lg fade-in max-w-xs';
+            
+            // Set toast style based on type
+            if (type === "success") {
+                toast.classList.add('bg-green-500', 'text-white');
+            } else if (type === "error") {
+                toast.classList.add('bg-red-500', 'text-white');
+            } else if (type === "info") {
+                toast.classList.add('bg-blue-500', 'text-white');
+            } else if (type === "warning") {
+                toast.classList.add('bg-yellow-500', 'text-white');
+            }
+            
+            toast.textContent = message;
+            
+            elements.toastContainer.appendChild(toast);
+            
+            // Remove toast after a delay
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    if (elements.toastContainer.contains(toast)) {
+                        elements.toastContainer.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Show a modal
+        function showModal(title, message, confirmCallback) {
+            elements.modalHeader.textContent = title;
+            elements.modalBody.textContent = message;
+            elements.modalOverlay.classList.remove('hidden');
+            
+            // Set up event handlers
+            const handleConfirm = () => {
+                elements.modalOverlay.classList.add('hidden');
+                elements.modalConfirm.removeEventListener('click', handleConfirm);
+                elements.modalCancel.removeEventListener('click', handleCancel);
+                confirmCallback();
+            };
+            
+            const handleCancel = () => {
+                elements.modalOverlay.classList.add('hidden');
+                elements.modalConfirm.removeEventListener('click', handleConfirm);
+                elements.modalCancel.removeEventListener('click', handleCancel);
+            };
+            
+            elements.modalConfirm.addEventListener('click', handleConfirm);
+            elements.modalCancel.addEventListener('click', handleCancel);
+        }
+
+        // Show edit task modal
+        function showEditTaskModal(taskId) {
+            const task = gameState.tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            elements.modalHeader.textContent = "Edit Task";
+            
+            // Create form for editing
+            const form = document.createElement('div');
+            
+            const nameLabel = document.createElement('label');
+            nameLabel.className = 'block mb-1';
+            nameLabel.textContent = 'Task Name:';
+            
+            const nameInput = document.createElement('input');
+            nameInput.className = 'ancient-input w-full mb-2';
+            nameInput.value = task.name;
+            
+            const tagsLabel = document.createElement('label');
+            tagsLabel.className = 'block mb-1';
+            tagsLabel.textContent = 'Tags (comma separated):';
+            
+            const tagsInput = document.createElement('input');
+            tagsInput.className = 'ancient-input w-full';
+            tagsInput.value = task.tags.join(', ');
+            
+            form.appendChild(nameLabel);
+            form.appendChild(nameInput);
+            form.appendChild(tagsLabel);
+            form.appendChild(tagsInput);
+            
+            elements.modalBody.innerHTML = '';
+            elements.modalBody.appendChild(form);
+            
+            elements.modalOverlay.classList.remove('hidden');
+            
+            // Set up event handlers
+            const handleConfirm = () => {
+                const newName = nameInput.value.trim();
+                const newTags = tagsInput.value
+                    .split(',')
+                    .map(tag => tag.trim())
+                    .filter(tag => tag);
+                
+                if (newName) {
+                    // Update task
+                    task.name = newName;
+                    task.tags = newTags;
+                    
+                    // Update UI
+                    renderTaskList();
+                    
+                    showToast("Task updated successfully", "success");
+                    saveGameState();
+                } else {
+                    showToast("Task name cannot be empty", "error");
+                }
+                
+                elements.modalOverlay.classList.add('hidden');
+                elements.modalConfirm.removeEventListener('click', handleConfirm);
+                elements.modalCancel.removeEventListener('click', handleCancel);
+            };
+            
+            const handleCancel = () => {
+                elements.modalOverlay.classList.add('hidden');
+                elements.modalConfirm.removeEventListener('click', handleConfirm);
+                elements.modalCancel.removeEventListener('click', handleCancel);
+            };
+            
+            elements.modalConfirm.addEventListener('click', handleConfirm);
+            elements.modalCancel.addEventListener('click', handleCancel);
+        }
+
+        // Show tutorial
+        let currentTutorialPage = 0;
+
+        function showTutorial() {
+            currentTutorialPage = 0;
+            updateTutorialContent();
+            elements.tutorialOverlay.classList.remove('hidden');
+        }
+
+        function updateTutorialContent() {
+            const tutorial = tutorialContent[currentTutorialPage];
+            elements.tutorialBody.innerHTML = tutorial.content;
+            document.querySelector('#tutorial-content .cultivation-banner').textContent = tutorial.title;
+            elements.tutorialPage.textContent = `${currentTutorialPage + 1}/${tutorialContent.length}`;
+            
+            // Update button states
+            elements.tutorialPrev.disabled = currentTutorialPage === 0;
+            elements.tutorialNext.textContent = currentTutorialPage === tutorialContent.length - 1 ? 'Finish' : 'Next';
+        }
+
+        function nextTutorialPage() {
+            if (currentTutorialPage < tutorialContent.length - 1) {
+                currentTutorialPage++;
+                updateTutorialContent();
+            } else {
+                elements.tutorialOverlay.classList.add('hidden');
+            }
+        }
+
+        function prevTutorialPage() {
+            if (currentTutorialPage > 0) {
+                currentTutorialPage--;
+                updateTutorialContent();
+            }
+        }
+
+        // Save and load game state
+        function saveGameState() {
+            try {
+                localStorage.setItem('cultivationTaskManager', JSON.stringify(gameState));
+            } catch (error) {
+                console.error('Failed to save game state:', error);
+            }
+        }
+
+        function loadGameState() {
+            try {
+                const savedState = localStorage.getItem('cultivationTaskManager');
+                if (savedState) {
+                    const parsedState = JSON.parse(savedState);
+                    
+                    // Merge the saved state with the default state
+                    // This ensures new properties added in updates are included
+                    Object.assign(gameState, parsedState);
+                    
+                    // Update the UI
+                    updateCultivationUI();
+                    updateStonesUI();
+                    updateStatisticsUI();
+                    renderTaskList();
+                    renderGeneratedTasks();
+                    
+                    // Calculate idle gains since last update
+                    const now = Date.now();
+                    const elapsedMinutes = (now - gameState.player.lastUpdated) / (1000 * 60);
+                    
+                    if (elapsedMinutes > 0) {
+                        const currentRealm = getCurrentRealm();
+                        const idleGain = Math.floor(elapsedMinutes * 0.5 * currentRealm.multiplier);
+                        
+                        if (idleGain > 0) {
+                            gameState.player.qi += idleGain;
+                            gameState.player.lastUpdated = now;
+                            
+                            showToast(`Welcome back! You gained ${formatNumber(idleGain)} qi while away.`, "info");
+                            updateCultivationUI();
+                            saveGameState();
+                        }
+                    }
+                } else {
+                    // First time running the app, show tutorial
+                    setTimeout(showTutorial, 500);
+                }
+            } catch (error) {
+                console.error('Failed to load game state:', error);
+                showToast("Error loading saved data. Starting fresh.", "error");
+            }
+        }
+
+        // Export game state
+        function exportGameState() {
+            try {
+                const exportData = btoa(JSON.stringify(gameState));
+                elements.importData.value = exportData;
+                showToast("Game data exported to the text area below", "success");
+            } catch (error) {
+                console.error('Failed to export game state:', error);
+                showToast("Failed to export game data", "error");
+            }
+        }
+
+        // Import game state
+        function importGameState() {
+            try {
+                const importData = elements.importData.value.trim();
+                if (!importData) {
+                    showToast("Please paste exported game data first", "error");
+                    return;
+                }
+                
+                const parsedState = JSON.parse(atob(importData));
+                
+                // Verify this is valid game data
+                if (!parsedState.version || !parsedState.player) {
+                    showToast("Invalid game data format", "error");
+                    return;
+                }
+                
+                showModal(
+                    "Import Game Data",
+                    "Are you sure you want to import this game data? Your current progress will be overwritten.",
+                    () => {
+                        // Merge the imported state with the current state
+                        Object.assign(gameState, parsedState);
+                        
+                        // Update the UI
+                        updateCultivationUI();
+                        updateStonesUI();
+                        updateStatisticsUI();
+                        renderTaskList();
+                        renderGeneratedTasks();
+                        
+                        // Save to localStorage
+                        saveGameState();
+                        
+                        showToast("Game data imported successfully", "success");
+                    }
+                );
+            } catch (error) {
+                console.error('Failed to import game state:', error);
+                showToast("Failed to import game data. Make sure you pasted the correct data.", "error");
+            }
+        }
+
+        // Reset statistics
+        function resetStats() {
+            showModal(
+                "Reset Statistics",
+                "Are you sure you want to reset all statistics? This will not affect your cultivation progress or inventory.",
+                () => {
+                    gameState.stats = {
+                        totalTasks: gameState.tasks.length,
+                        completedTasks: 0,
+                        totalQiEarned: 0,
+                        totalStonesFound: {
+                            basic: 0,
+                            low: 0,
+                            medium: 0,
+                            high: 0,
+                            supreme: 0,
+                            divine: 0
+                        },
+                        stonesFused: {
+                            basic: 0,
+                            low: 0,
+                            medium: 0,
+                            high: 0,
+                            supreme: 0
+                        },
+                        breakthroughs: 0,
+                        failedAttempts: 0,
+                        highestRealmReached: gameState.player.realm
+                    };
+                    
+                    updateStatisticsUI();
+                    saveGameState();
+                    
+                    showToast("Statistics reset successfully", "success");
+                }
+            );
+        }
+
+        // Hard reset
+        function hardReset() {
+            showModal(
+                "Hard Reset",
+                "Are you sure you want to reset ALL game data? This will delete your cultivation progress, tasks, inventory, and statistics. This cannot be undone!",
+                () => {
+                    // Reset to initial state
+                    Object.assign(gameState, {
+                        version: '1.0.0',
+                        player: {
+                            realm: 0,
+                            stage: 1,
+                            qi: 0,
+                            lastUpdated: Date.now()
+                        },
+                        tasks: [],
+                        generatedTasks: [],
+                        stones: {
+                            basic: 0,
+                            low: 0,
+                            medium: 0,
+                            high: 0,
+                            supreme: 0,
+                            divine: 0
+                        },
+                        selectedStones: {
+                            basic: 0,
+                            low: 0,
+                            medium: 0,
+                            high: 0,
+                            supreme: 0,
+                            divine: 0
+                        },
+                        stats: {
+                            totalTasks: 0,
+                            completedTasks: 0,
+                            totalQiEarned: 0,
+                            totalStonesFound: {
+                                basic: 0,
+                                low: 0,
+                                medium: 0,
+                                high: 0,
+                                supreme: 0,
+                                divine: 0
+                            },
+                            stonesFused: {
+                                basic: 0,
+                                low: 0,
+                                medium: 0,
+                                high: 0,
+                                supreme: 0
+                            },
+                            breakthroughs: 0,
+                            failedAttempts: 0,
+                            highestRealmReached: 0
+                        }
+                    });
+                    
+                    // Update all UI components
+                    updateCultivationUI();
+                    updateStonesUI();
+                    updateStatisticsUI();
+                    renderTaskList();
+                    renderGeneratedTasks();
+                    
+                    // Save to localStorage
+                    saveGameState();
+                    
+                    showToast("Game data reset successfully", "success");
+                }
+            );
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Cultivation tab
+            elements.clearStones.addEventListener('click', () => {
+                // Reset selected stones
+                for (const type in gameState.selectedStones) {
+                    gameState.selectedStones[type] = 0;
+                }
+                
+                updateStonesUI();
+                updateCultivationUI();
+            });
+            
+            elements.attemptBreakthrough.addEventListener('click', attemptBreakthrough);
+            
+            // Spirit stone selection
+            document.querySelectorAll('.spirit-stone').forEach(stone => {
+                stone.addEventListener('click', () => {
+                    const type = stone.dataset.type;
+                    
+                    // Can't select more stones than you have
+                    if (gameState.selectedStones[type] < gameState.stones[type]) {
+                        gameState.selectedStones[type]++;
+                        updateStonesUI();
+                        updateCultivationUI();
+                    } else {
+                        showToast(`You don't have any more ${spiritStones[type].name}s to use`, "info");
+                    }
+                });
+            });
+            
+            // Tasks tab
+            elements.addTask.addEventListener('click', () => {
+                const name = elements.taskName.value.trim();
+                const tagsInput = elements.taskTags.value.trim();
+                
+                if (!name) {
+                    showToast("Please enter a task name", "error");
+                    return;
+                }
+                
+                const tags = tagsInput
+                    ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag)
+                    : [];
+                
+                const newTask = {
+                    id: Date.now().toString(),
+                    name,
+                    tags
+                };
+                
+                gameState.tasks.push(newTask);
+                gameState.stats.totalTasks++;
+                
+                elements.taskName.value = '';
+                elements.taskTags.value = '';
+                
+                renderTaskList();
+                updateStatisticsUI();
+                saveGameState();
+                
+                showToast("Task added successfully", "success");
+            });
+            
+            elements.sortTasks.addEventListener('change', renderTaskList);
+            
+            elements.selectAllTasks.addEventListener('click', () => {
+                const checkboxes = elements.taskList.querySelectorAll('input[type="checkbox"]');
+                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                
+                checkboxes.forEach(cb => {
+                    cb.checked = !allChecked;
+                });
+                
+                updateTaskSelectionStatus();
+            });
+            
+            elements.taskList.addEventListener('change', event => {
+                if (event.target.type === 'checkbox') {
+                    updateTaskSelectionStatus();
+                }
+            });
+            
+            elements.editSelectedTask.addEventListener('click', () => {
+                const checkboxes = elements.taskList.querySelectorAll('input[type="checkbox"]:checked');
+                if (checkboxes.length === 1) {
+                    const taskId = checkboxes[0].dataset.id;
+                    showEditTaskModal(taskId);
+                }
+            });
+            
+            elements.deleteSelectedTasks.addEventListener('click', () => {
+                const checkboxes = elements.taskList.querySelectorAll('input[type="checkbox"]:checked');
+                const selectedIds = Array.from(checkboxes).map(cb => cb.dataset.id);
+                
+                if (selectedIds.length === 0) return;
+                
+                showModal(
+                    "Delete Tasks",
+                    `Are you sure you want to delete ${selectedIds.length} task(s)?`,
+                    () => {
+                        // Remove tasks with selected IDs
+                        gameState.tasks = gameState.tasks.filter(task => !selectedIds.includes(task.id));
+                        
+                        // Update stats
+                        gameState.stats.totalTasks = gameState.tasks.length;
+                        
+                        renderTaskList();
+                        updateStatisticsUI();
+                        saveGameState();
+                        
+                        showToast(`${selectedIds.length} task(s) deleted`, "success");
+                    }
+                );
+            });
+            
+            elements.generateTasks.addEventListener('click', generateRandomTasks);
+            
+            elements.completeAllTasks.addEventListener('click', completeAllTasks);
+            
+            elements.giveUpTasks.addEventListener('click', giveUpTasks);
+            
+            // Inventory tab
+            elements.stoneButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const stoneType = button.getAttribute('data-stone');
+                    fuseStones(stoneType);
+                });
+            });
+            
+            // Settings tab
+            elements.exportGame.addEventListener('click', exportGameState);
+            
+            elements.importGame.addEventListener('click', importGameState);
+            
+            elements.resetStats.addEventListener('click', resetStats);
+            
+            elements.hardReset.addEventListener('click', hardReset);
+            
+            elements.showTutorial.addEventListener('click', showTutorial);
+            
+            // Tutorial navigation
+            elements.tutorialNext.addEventListener('click', nextTutorialPage);
+            elements.tutorialPrev.addEventListener('click', prevTutorialPage);
+            
+            // Setup idle progression update
+            setInterval(() => {
+                const now = Date.now();
+                const elapsedMinutes = (now - gameState.player.lastUpdated) / (1000 * 60);
+                
+                if (elapsedMinutes > 0) {
+                    const currentRealm = getCurrentRealm();
+                    const idleGain = elapsedMinutes * 0.5 * currentRealm.multiplier;
+                    
+                    gameState.player.qi += idleGain;
+                    gameState.player.lastUpdated = now;
+                    
+                    updateCultivationUI();
+                    saveGameState();
+                }
+            }, 60000); // Update every minute
+            
+            // Setup dark mode detection
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            }
+            
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+                if (event.matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            });
+        }
+
+        // Initialize the app
+        function init() {
+            setupEventListeners();
+            loadGameState();
+            
+            // Update UI components initially
+            updateCultivationUI();
+            updateStonesUI();
+            updateStatisticsUI();
+            renderTaskList();
+            renderGeneratedTasks();
+        }
+
+        // Start the app
+        init();
+    </script>
+</body>
+</html>
