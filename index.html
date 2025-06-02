@@ -2492,51 +2492,295 @@
             { id: 'fc-10', name: 'Fang Yuan', custom: false, editCooldown: 0, encounters: 0 }
         ];
 
+	const messageComponents = {
+    studyObjects: [
+        "an ancient cultivation array",
+        "an ancient cultivation technique", 
+        "a weathered stone tablet",
+        "a corpse of a spiritual beast",
+        "mysterious formations carved into rock",
+        "an abandoned cultivation manual",
+        "strange spiritual inscriptions",
+        "ancient beast bones with residual qi",
+        "a meteorite emanating spiritual energy",
+        "faded murals depicting cultivation methods",
+        "a broken spiritual artifact",
+        "crystallized spiritual essence"
+    ],
+    
+    // Categorized activities for different contexts
+    studyActivities: [
+        "examining the spiritual formations together",
+        "deciphering ancient inscriptions",
+        "studying cultivation techniques",
+        "analyzing spiritual energy patterns",
+        "researching historical cultivation methods",
+        "comparing notes on ancient texts"
+    ],
+    
+    socialActivities: [
+        "discussing recent cultivation breakthroughs",
+        "sharing stories of your journeys", 
+        "exchanging cultivation insights",
+        "comparing martial arts techniques",
+        "trading rare cultivation resources",
+        "debating philosophical aspects of the dao"
+    ],
+    
+    adventureActivities: [
+        "hunting powerful spiritual beasts",
+        "tackling a rogue cultivator together",
+        "exploring dangerous territories",
+        "fighting off beast attacks",
+        "searching for rare spiritual herbs",
+        "investigating mysterious phenomena"
+    ],
+    
+    peacefulActivities: [
+        "meditating in harmony with nature",
+        "practicing breathing techniques",
+        "enjoying the tranquil atmosphere",
+        "reflecting on your cultivation paths",
+        "sharing a moment of spiritual connection",
+        "appreciating the natural spiritual energy"
+    ],
+    
+    // Categorized locations
+    studyLocations: [
+        "an ancient library",
+        "a hidden cave filled with inscriptions", 
+        "the ruins of an old sect",
+        "a forgotten cultivation chamber",
+        "an abandoned research facility",
+        "a sacred archive"
+    ],
+    
+    socialLocations: [
+        "a bustling marketplace",
+        "a popular teahouse",
+        "the sect's main hall",
+        "a crowded inn",
+        "the city's central plaza",
+        "a well-known restaurant"
+    ],
+    
+    adventureLocations: [
+        "a dangerous beast's lair",
+        "the treacherous mountain pass",
+        "a monster-infested forest",
+        "the chaotic borderlands", 
+        "a collapsing ancient tomb",
+        "a volatile spiritual vortex area"
+    ],
+    
+    peacefulLocations: [
+        "a serene lotus pond",
+        "a tranquil bamboo grove",
+        "a quiet mountain peak",
+        "a secluded waterfall",
+        "a peaceful spirit spring",
+        "a beautiful flower garden",
+        "a calm riverside"
+    ],
+    
+    gatherings: [
+        "alchemy conference",
+        "martial arts tournament",
+        "cultivation seminar", 
+        "artifact auction",
+        "sect gathering",
+        "lantern festival",
+        "trade fair",
+        "spiritual beast exhibition",
+        "cultivation technique demonstration",
+        "scholarly symposium"
+    ],
+    
+    weather: [
+        "during a gentle spring rain",
+        "under the bright morning sun",
+        "in the cool evening breeze",
+        "amidst swirling autumn leaves",
+        "while snow fell softly around you",
+        "as storm clouds gathered overhead",
+        "under a sky full of stars",
+        "in the warm afternoon light",
+        "during a mystical fog",
+        "beneath the pale moonlight"
+    ],
+    
+    time: [
+        "at dawn",
+        "in the early morning",
+        "during midday",
+        "in the late afternoon", 
+        "at sunset",
+        "in the evening",
+        "late at night",
+        "during the midnight hour",
+        "before sunrise",
+        "as day turned to night"
+    ],
+    
+    firstMeetingEmotions: [
+        "with mutual curiosity and respect",
+        "in a moment of serendipitous connection",
+        "with cautious but growing interest",
+        "sharing an immediate sense of kinship",
+        "with polite but genuine warmth",
+        "in a surprisingly comfortable manner",
+        "with intrigued fascination",
+        "displaying natural camaraderie"
+    ],
+    
+    repeatMeetingEmotions: [
+        "with warm familiarity",
+        "like old friends reuniting",
+        "with genuine joy and recognition",
+        "sharing comfortable companionship",
+        "with the ease of trusted allies",
+        "in a heartwarming reunion",
+        "with mutual delight",
+        "as kindred spirits meeting again"
+    ]
+};
+
         // Meeting messages for fellow cultivators
         const fellowCultivatorMessages = {
     firstMeeting: [
-        "You met a fellow cultivator, [name], while visiting the city and you two chatted for a while.",
-        "While meditating, a fellow cultivator, [name], walked by and meditated together with you.",
-        "During your herb gathering, you encountered [name], who shared some cultivation insights with you.",
-        "At the sect's library, you bumped into [name], and exchanged pointers on cultivation techniques.",
-        "A sudden thunderstorm brought you and [name] to shelter in the same cave, where you discussed the dao.",
-        "You joined a small martial arts competition and met [name], who proved to be a worthy opponent.",
-        "While fishing by the spirit lake, [name] approached and shared some rare cultivation experiences.",
-        "At the night market, you encountered [name] browsing through cultivation manuals just like you.",
-        "During a monster wave in the wilderness, you fought back-to-back with [name] and formed a bond.",
-        "On your way to the alchemy shop, you met [name] who was also looking for the same rare ingredients.",
-        "While exploring a hidden valley, you met [name], who was studying an ancient cultivation array.",
-        "At a local tea ceremony, [name] joined your table, sparking a deep conversation about spiritual paths.",
-        "During a lantern festival, you encountered [name], and together you released a glowing spirit lantern.",
-        "While training in the bamboo forest, [name] appeared, offering to spar and share martial insights.",
-        "You met [name] at a sacred shrine, where you both paid respects and discussed the mysteries of the dao.",
-        "During a pilgrimage to a holy mountain, you crossed paths with [name], sharing stories of your journeys.",
-        "At a bustling trade fair, you met [name], who was examining rare spirit herbs with great interest.",
-        "While stargazing on a quiet hill, [name] joined you, revealing secrets of celestial cultivation.",
-        "You encountered [name] during a ritual to calm restless spirits, bonding over your shared resolve.",
-        "At a secluded waterfall, you met [name], who was practicing a rare water-based cultivation technique."
+        // Scholarly/Study Context (Original + New)
+        "While exploring [studyLocation] [time], you encountered [name] who was intently studying [studyObject]. You approached [emotion] and began [studyActivity].",
+        
+        "[Weather], you discovered [name] at [studyLocation], carefully examining [studyObject]. The two of you connected [emotion] while [studyActivity].",
+        
+        "[Time], your research led you to [studyLocation] where [name] was already engrossed in [studyObject]. [Emotion], you joined them in [studyActivity] [weather].",
+        
+        "Your quest for knowledge brought you to [studyLocation] [weather], where you found [name] puzzling over [studyObject]. Meeting [emotion], you offered to help with [studyActivity].",
+        
+        "[Weather] [time], you stumbled upon [name] at [studyLocation], who was making notes about [studyObject]. Introducing yourselves [emotion], you began [studyActivity] together.",
+        
+        "At [studyLocation], you noticed [name] struggling to understand [studyObject] [time]. Approaching [emotion], you suggested [studyActivity] [weather].",
+        
+        // Social Context (Original + New)
+        "At a local [gathering] [time], [name] joined your table [emotion]. You spent the time [socialActivity] [weather].",
+        
+        "[Weather] during a [gathering], you met [name] [emotion]. The atmosphere was perfect for [socialActivity].",
+        
+        "You encountered [name] at [socialLocation] [time], and [emotion], you found yourselves [socialActivity] [weather].",
+        
+        "[Time] at [socialLocation], you were approached by [name] who seemed interested in conversation. [Emotion], you began [socialActivity] [weather].",
+        
+        "During a busy [gathering] [weather], you and [name] happened to sit near each other. [Emotion], you started [socialActivity] [time].",
+        
+        "[Weather], the [gathering] was in full swing when you noticed [name] looking around uncertainly. [Emotion], you invited them to join you in [socialActivity].",
+        
+        "While waiting for a [gathering] to begin [time], you struck up a conversation with [name] [emotion]. Soon you were [socialActivity] [weather].",
+        
+        "[Time] at [socialLocation], [name] overheard your conversation and politely joined in [emotion]. The three of you ended up [socialActivity] [weather].",
+        
+        // Adventure Context (Original + New)
+        "[Time] [weather], you and [name] found yourselves at [adventureLocation]. Initially meeting [emotion], you ended up [adventureActivity] together.",
+        
+        "During an expedition to [adventureLocation], you met [name] while [adventureActivity]. Despite the danger, you connected [emotion] [weather].",
+        
+        "[Weather] [time], danger forced you and [name] to take shelter together at [adventureLocation]. [Emotion], you worked together [adventureActivity].",
+        
+        "Your path led to [adventureLocation] [time], where you encountered [name] who was also [adventureActivity]. [Emotion] despite the perilous situation, you decided to cooperate [weather].",
+        
+        "[Time], you heard sounds of combat from [adventureLocation] and rushed to help, finding [name] [adventureActivity]. [Emotion], you joined the effort [weather].",
+        
+        "[Weather], both you and [name] arrived at [adventureLocation] with the same goal. Meeting [emotion], you agreed to work together [adventureActivity] [time].",
+        
+        "An emergency at [adventureLocation] [time] brought you and [name] together. [Emotion], you coordinated your efforts while [adventureActivity] [weather].",
+        
+        // Peaceful Context (Original + New)
+        "[Weather] [time], you came across [name] at [peacefulLocation]. [Emotion], you both began [peacefulActivity] in harmony.",
+        
+        "At [peacefulLocation] [time], you encountered [name] [emotion]. The serene environment led to [peacefulActivity] together [weather].",
+        
+        "[Time] [weather], you sought solitude at [peacefulLocation] but found [name] already there. [Emotion], you both enjoyed [peacefulActivity] in comfortable silence.",
+        
+        "Your meditation was gently interrupted [time] when [name] arrived at [peacefulLocation]. [Emotion], you welcomed them to join you in [peacefulActivity] [weather].",
+        
+        "[Weather], the beauty of [peacefulLocation] drew both you and [name] to the same spot [time]. Meeting [emotion], you shared [peacefulActivity].",
+        
+        "[Time], you were [peacefulActivity] at [peacefulLocation] when [name] approached respectfully. [Emotion], you invited them to join you [weather].",
+        
+        // Mixed/Unique Contexts
+        "[Weather] [time], fate seemed to guide both you and [name] to [studyLocation]. [Emotion], what started as [studyActivity] evolved into [socialActivity].",
+        
+        "A chance encounter [time] at [socialLocation] led you and [name] to discover a mutual interest. [Emotion], you ventured together to [peacefulLocation] for [peacefulActivity] [weather].",
+        
+        "[Time], your separate journeys converged at [adventureLocation]. After [adventureActivity] together [emotion], you retreated to [peacefulLocation] for [peacefulActivity] [weather]."
     ],
+    
     repeatMeeting: [
-        "You met your fellow cultivator [name] again while practicing sword techniques by the waterfall.",
-        "That was not your first encounter with [name], as you recognized each other immediately at the sect gathering.",
-        "Once again, you crossed paths with [name] at the celestial mountain peak during your cultivation journey.",
-        "Your paths intertwined with [name] once more as you both attended the same alchemy seminar.",
-        "[name] greeted you like an old friend when you encountered each other at the spirit beast market.",
-        "You recognized [name] immediately when they entered the same teahouse where you were resting.",
-        "The familiar presence of [name] was a welcome sight during the annual cultivation conference.",
-        "In the midst of a fierce spiritual storm, you found [name] again, and you both took shelter together.",
-        "During your visit to the ancient ruins, you were pleased to find [name] conducting research there as well.",
-        "Your cultivation journeys aligned once more as you and [name] found yourselves at the same spirit spring.",
-        "While wandering through a misty forest, you met [name] again, discussing new cultivation techniques.",
-        "At the annual sect tournament, you spotted [name] in the crowd, eager to catch up and compare progress.",
-        "You encountered [name] at a quiet lotus pond, where you both reflected on your cultivation paths.",
-        "During a rare celestial alignment, you and [name] met again, sharing insights on cosmic energies.",
-        "At a hidden spirit cave, you reunited with [name], collaborating on deciphering ancient inscriptions.",
-        "While attending a lecture on qi refinement, you saw [name] and resumed your past discussions.",
-        "You met [name] again at a bustling artifact auction, exchanging tips on spotting valuable treasures.",
-        "During a joint sect mission, you and [name] teamed up once more, strengthening your camaraderie.",
-        "At a tranquil cherry blossom grove, you found [name], reminiscing about your shared adventures.",
-        "While exploring a newly uncovered relic site, you crossed paths with [name], eager to explore together."
+        // Scholarly/Study Context (Original + New)
+        "You met [name] again at [studyLocation] [time], where you both were [studyActivity]. [Emotion] [weather], you delved deeper into your research together.",
+        
+        "[Weather], you found [name] once more at [studyLocation], this time [studyActivity]. You greeted each other [emotion] and continued your scholarly pursuits.",
+        
+        "[Time], your research paths crossed with [name]'s again at [studyLocation]. [Emotion], you resumed [studyActivity] [weather], building on your previous discoveries.",
+        
+        "Returning to [studyLocation] [weather], you weren't surprised to find [name] there again, [studyActivity]. [Emotion], you picked up where you left off [time].",
+        
+        "[Weather] [time], you and [name] rendezvoused at [studyLocation] as planned. [Emotion], you continued your collaborative work [studyActivity].",
+        
+        // Social Context (Original + New)
+        "Your paths crossed with [name] again at [socialLocation] [time]. [Emotion], you spent time [socialActivity] [weather].",
+        
+        "At another [gathering] [time], you spotted [name] across the crowd. Meeting [emotion], you resumed [socialActivity] [weather].",
+        
+        "[Weather], you bumped into [name] again at [socialLocation]. [Emotion] like old friends, you immediately began [socialActivity] [time].",
+        
+        "[Time] at a different [gathering], you and [name] found each other once more. [Emotion], the familiarity made [socialActivity] even more enjoyable [weather].",
+        
+        "[Name] waved to you [emotion] across [socialLocation] [time]. Soon you were together again, [socialActivity] [weather] as if no time had passed.",
+        
+        "By coincidence, you and [name] ended up at the same [gathering] again [time]. [Emotion], you naturally gravitated toward each other and began [socialActivity] [weather].",
+        
+        // Adventure Context (Original + New)
+        "[Time], you and [name] found yourselves at [adventureLocation] once more. [Emotion], you teamed up again for [adventureActivity] [weather].",
+        
+        "Once again, danger brought you and [name] together at [adventureLocation]. [Emotion] despite the circumstances, you began [adventureActivity] [weather].",
+        
+        "[Weather] [time], duty called both you and [name] back to [adventureLocation]. [Emotion], you coordinated seamlessly while [adventureActivity].",
+        
+        "Your second expedition to [adventureLocation] [time] reunited you with [name]. [Emotion], your previous experience together made [adventureActivity] much smoother [weather].",
+        
+        "[Time], reports from [adventureLocation] drew both you and [name] back to action. Meeting [emotion], you knew you could count on each other while [adventureActivity] [weather].",
+        
+        // Peaceful Context (Original + New)
+        "[Weather] [time], you encountered [name] again at [peacefulLocation]. [Emotion], you both enjoyed [peacefulActivity] in the tranquil setting.",
+        
+        "Your cultivation journey led you to [peacefulLocation] again, where you met [name] [emotion]. Together, you spent time [peacefulActivity] [weather].",
+        
+        "[Time], you returned to [peacefulLocation] and were delighted to find [name] there as well. [Emotion], you continued [peacefulActivity] [weather] with renewed appreciation.",
+        
+        "[Weather], both you and [name] seemed drawn back to [peacefulLocation] [time]. [Emotion], you settled into [peacefulActivity] together as if it were the most natural thing.",
+        
+        "The serenity of [peacefulLocation] called to both you and [name] again [time]. Meeting [emotion], you shared [peacefulActivity] [weather] in comfortable companionship.",
+        
+        // Progressive/Relationship Building
+        "[Weather] [time], you sought out [name] at [studyLocation], hoping to continue your previous discussion. [Emotion], you dove into [studyActivity] with renewed enthusiasm.",
+        
+        "Having enjoyed your last encounter, you and [name] agreed to meet again at [socialLocation] [time]. [Emotion], you spent the occasion [socialActivity] [weather].",
+        
+        "[Time], your previous adventure created a bond, so when you heard [name] was heading to [adventureLocation], you joined them. [Emotion], you worked together [adventureActivity] [weather].",
+        
+        "[Weather], you found yourself hoping to encounter [name] again at [peacefulLocation] [time]. [Emotion], when they appeared, you both smiled and began [peacefulActivity].",
+        
+        // Callback to Previous Meetings
+        "[Time] [weather], you and [name] returned to [studyLocation] where you first met. [Emotion], you reflected on your journey while [studyActivity].",
+        
+        "Remembering your pleasant first meeting, you suggested [name] join you at [socialLocation] [time]. [Emotion], you enjoyed [socialActivity] even more than before [weather].",
+        
+        "[Weather], fate brought you and [name] together at [adventureLocation] yet again. [Emotion], you joked about your tendency to meet in dangerous places while [adventureActivity] [time].",
+        
+        // Mixed/Evolving Contexts
+        "[Time], what began as [studyActivity] with [name] at [studyLocation] naturally evolved into [socialActivity] [emotion] as you moved to [socialLocation] [weather].",
+        
+        "[Weather], your partnership with [name] had grown strong enough that [adventureActivity] at [adventureLocation] felt routine. [Emotion], you later unwound with [peacefulActivity] at [peacefulLocation] [time]."
     ]
 };
 
@@ -3976,6 +4220,40 @@
                 }
             });
         });
+
+	function replacePlaceholders(template, cultivatorName, isFirstMeeting = true) {
+    let message = template.replace('[name]', cultivatorName);
+    
+    // Choose appropriate emotion based on meeting type
+    const emotions = isFirstMeeting ? 
+        messageComponents.firstMeetingEmotions : 
+        messageComponents.repeatMeetingEmotions;
+    
+    const placeholders = {
+        '[studyObject]': messageComponents.studyObjects,
+        '[studyActivity]': messageComponents.studyActivities,
+        '[socialActivity]': messageComponents.socialActivities,
+        '[adventureActivity]': messageComponents.adventureActivities,
+        '[peacefulActivity]': messageComponents.peacefulActivities,
+        '[studyLocation]': messageComponents.studyLocations,
+        '[socialLocation]': messageComponents.socialLocations,
+        '[adventureLocation]': messageComponents.adventureLocations,
+        '[peacefulLocation]': messageComponents.peacefulLocations,
+        '[gathering]': messageComponents.gatherings,
+        '[weather]': messageComponents.weather,
+        '[time]': messageComponents.time,
+        '[emotion]': emotions
+    };
+    
+    for (const [placeholder, options] of Object.entries(placeholders)) {
+        if (message.includes(placeholder)) {
+            const randomOption = options[Math.floor(Math.random() * options.length)];
+            message = message.replace(placeholder, randomOption);
+        }
+    }
+    
+    return message;
+}
 
         // Get current realm object
         function getCurrentRealm() {
