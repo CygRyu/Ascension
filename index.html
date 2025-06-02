@@ -6101,7 +6101,7 @@ completionCount.textContent += ` (last: ${lastDate.toLocaleDateString()})`;
                 const additionalLoss = Math.floor(gameState.player.qi * (0.15 + Math.random() * 0.2));
                 gameState.player.qi = Math.max(0, gameState.player.qi - additionalLoss);
                 
-                showToast(`Breakthrough failed! Lost additional ${formatNumber(additionalLoss)} qi.`, "error");
+                showToast(`Breakthrough failed! You lost some qi.`, "error");
             }
             
             // Clear selected stones
