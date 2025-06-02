@@ -2077,7 +2077,7 @@
                             
                             <div class="mb-4">
                                 <label class="block mb-1">Import Game Data:</label>
-                                <textarea id="import-data" class="ancient-input w-full h-20" placeholder="Paste exported game data here"></textarea>
+<textarea id="import-data" class="ancient-input w-full h-20" placeholder="Paste encoded game data here"></textarea>
                                 <button id="import-game" class="ancient-button w-full mt-2">Import Game Data</button>
                             </div>
                             
@@ -7302,88 +7302,95 @@ completionCount.textContent += ` (last: ${lastDate.toLocaleDateString()})`;
             return false;
         }
 
-        // Export game data
-        function exportGameData() {
-            try {
-                const exportData = JSON.stringify(gameState, null, 2);
-                
-                // Create a blob and download it
-                const blob = new Blob([exportData], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `cultivation-game-${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                
-                URL.revokeObjectURL(url);
-                
-                showToast("Game data exported successfully", "success");
-                
-                // Check achievement
-                checkAchievement("misc_export_data");
-                
-            } catch (error) {
-                console.error('Failed to export game data:', error);
-                showToast("Failed to export game data", "error");
-            }
-        }
+// Export game data
+function exportGameData() {
+    try {
+        const exportData = JSON.stringify(gameState);
+        const base64Data = btoa(exportData);
+        
+        // Show the Base64 data in the import textarea for easy copying
+        elements.importData.value = base64Data;
+        
+        // Also create a downloadable text file with the Base64 data
+        const blob = new Blob([base64Data], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cultivation-game-${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        URL.revokeObjectURL(url);
+        
+        showToast("Game data exported as Base64 (also copied to import field)", "success");
+        
+        // Check achievement
+        checkAchievement("misc_export_data");
+        
+    } catch (error) {
+        console.error('Failed to export game data:', error);
+        showToast("Failed to export game data", "error");
+    }
+}
 
         // Import game data
-        function importGameData() {
-            const importData = elements.importData.value.trim();
-            
-            if (!importData) {
-                showToast("Please paste game data to import", "error");
-                return;
-            }
-            
-            try {
-                const loadedState = JSON.parse(importData);
+function importGameData() {
+    const importData = elements.importData.value.trim();
+    
+    if (!importData) {
+        showToast("Please paste game data to import", "error");
+        return;
+    }
+    
+    try {
+        // First decode from Base64
+        const decodedData = atob(importData);
+        // Then parse JSON
+        const loadedState = JSON.parse(decodedData);
+        
+        // Validate the data structure
+        if (!loadedState.player || !loadedState.tasks) {
+            throw new Error("Invalid game data format");
+        }
+        
+        showModal("Import Game Data", 
+            "Are you sure you want to import this game data? This will replace your current progress!",
+            "Import", "Cancel", () => {
+                // Replace game state
+                Object.assign(gameState, loadedState);
                 
-                // Validate the data structure
-                if (!loadedState.player || !loadedState.tasks) {
-                    throw new Error("Invalid game data format");
+                // Initialize missing properties for backward compatibility
+                if (!gameState.fellowCultivators) {
+                    gameState.fellowCultivators = {
+                        pool: [...initialFellowCultivators],
+                        meetings: [],
+                        boostEndTime: 0,
+                        lastMeetingTime: 0,
+                        lastEncounter: null,
+                        addedToday: 0,
+                        dayLastAdded: null
+                    };
                 }
                 
-                showModal("Import Game Data", 
-                    "Are you sure you want to import this game data? This will replace your current progress!",
-                    "Import", "Cancel", () => {
-                        // Replace game state
-                        Object.assign(gameState, loadedState);
-                        
-                        // Initialize missing properties for backward compatibility
-                        if (!gameState.fellowCultivators) {
-                            gameState.fellowCultivators = {
-                                pool: [...initialFellowCultivators],
-                                meetings: [],
-                                boostEndTime: 0,
-                                lastMeetingTime: 0,
-                                lastEncounter: null,
-                                addedToday: 0,
-                                dayLastAdded: null
-                            };
-                        }
-                        
-                        // Clear import field
-                        elements.importData.value = '';
-                        
-                        // Update all UI
-                        updateAllUI();
-                        
-                        // Save the imported data
-                        saveGameState();
-                        
-                        showToast("Game data imported successfully", "success");
-                    });
+                // Clear import field
+                elements.importData.value = '';
                 
-            } catch (error) {
-                console.error('Failed to import game data:', error);
-                showToast("Invalid game data format", "error");
-            }
-        }
+                // Update all UI
+                updateAllUI();
+                
+                // Save the imported data
+                saveGameState();
+                
+                showToast("Game data imported successfully", "success");
+            });
+        
+    } catch (error) {
+        console.error('Failed to import game data:', error);
+        showToast("Invalid Base64 game data format", "error");
+    }
+}
 
         // Reset statistics only
         function resetStatistics() {
